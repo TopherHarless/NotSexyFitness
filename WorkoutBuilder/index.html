@@ -748,6 +748,7 @@
       <div class="builder-actions">
         <button class="btn btn-success" onclick="saveWorkout()">💾 Save</button>
         <button class="btn btn-outline" onclick="printWorkout()">🖨 Export PDF</button>
+        <button class="btn btn-secondary" onclick="applyPhaseDefaults()">↺ Apply Defaults</button>
         <button class="btn btn-secondary" onclick="showView('library')">← Library</button>
       </div>
       <div class="injury-chip-row">
@@ -930,6 +931,35 @@ const PHASE_DEFAULTS = {
     cooldown:         { sets:'1-3', reps:'1',     tempo:'Hold 30s',    rest:'0'       },
   }
 };
+
+// Goal-specific overrides — merged on top of PHASE_DEFAULTS when goal is known.
+// Fat Loss uses circuit format: rest=0 between exercises, sets=2-3 rounds.
+// Muscle Gain uses traditional sets with full rest between exercises.
+const PHASE_GOAL_DEFAULTS = {
+  'Fat Loss': {
+    1: { resistance: { sets:'2-3', reps:'12-20', tempo:'4-2-1-1', rest:'0' },
+         activation: { sets:'2-3', reps:'12-20', tempo:'4-2-1-1', rest:'0' } },
+    2: { resistance: { sets:'2-3', reps:'12-20', tempo:'3-2-1-1', rest:'0' } },
+    3: { resistance: { sets:'3-4', reps:'12-20', tempo:'2-0-2-0', rest:'30s' } },
+  },
+  'Muscle Gain': {
+    1: { resistance: { sets:'2-3', reps:'12-20', tempo:'4-2-1-1', rest:'60-90s' } },
+    2: { resistance: { sets:'2-4', reps:'8-12',  tempo:'2-0-2-0', rest:'60-90s' } },
+    3: { resistance: { sets:'3-5', reps:'6-12',  tempo:'2-0-2-0', rest:'60-90s' } },
+    4: { resistance: { sets:'4-6', reps:'1-5',   tempo:'1-0-1',   rest:'3-5 min' } },
+  },
+  'Sport Performance': {
+    2: { resistance: { sets:'2-4', reps:'8-12',  tempo:'2-0-2-0', rest:'0-60s' } },
+    5: { resistance: { sets:'3-5', reps:'1-10',  tempo:'X-X-X-X', rest:'3-5 min' },
+         skilldevelopment: { sets:'3-5', reps:'8-10', tempo:'Explosive', rest:'60-120s' } },
+  },
+};
+
+function getDefaults(phase, sectionId, goal) {
+  const base = (PHASE_DEFAULTS[phase] || {})[sectionId] || {};
+  const over = goal ? (((PHASE_GOAL_DEFAULTS[goal] || {})[phase] || {})[sectionId] || {}) : {};
+  return {...base, ...over};
+}
 
 const PHASE_CONTEXT = {
   1: '📌 Phase 1 Stabilization Endurance — Warm-Up: SMR + static stretching. Activation: isometric core (plank, bridge, bird-dog) + single-leg balance. Plyometrics: land and hold 3-5s. Resistance: 1-3 sets, 12-20 reps, 4-2-1-1 tempo, 0-90s rest.',
@@ -6788,6 +6818,25 @@ function updatePhaseContext() {
   } else {
     banner.textContent=phaseText;
   }
+  // Re-render sections so input placeholders reflect the new phase+goal defaults
+  if(getWorkout()) renderSections();
+}
+function applyPhaseDefaults() {
+  const w=getWorkout(); if(!w) return;
+  const phase=parseInt(document.getElementById('b-phase').value);
+  const goal=document.getElementById('b-goal').value;
+  if(!confirm(`Apply Phase ${phase}${goal?' / '+goal:''} defaults to ALL exercises?\n\nThis will overwrite sets, reps, tempo, and rest on every exercise in this workout.`)) return;
+  SECTIONS.forEach(sec=>{
+    const d=getDefaults(phase,sec.id,goal);
+    (w.exercises[sec.id]||[]).forEach(ex=>{
+      if(d.sets)  ex.sets  = d.sets;
+      if(d.reps)  ex.reps  = d.reps;
+      if(d.tempo) ex.tempo = d.tempo;
+      if(d.rest)  ex.rest  = d.rest;
+    });
+  });
+  w.updatedAt=Date.now(); markDirty(); renderSections();
+  toast('Phase defaults applied to all exercises');
 }
 function updateSettingContext() {
   const banner=document.getElementById('setting-context');
@@ -6826,11 +6875,12 @@ function updateGoalContext() {
 function renderSections() {
   const w=getWorkout();
   const phase=parseInt(document.getElementById('b-phase').value);
+  const goal=document.getElementById('b-goal').value;
   const container=document.getElementById('workout-sections');
   container.innerHTML='';
   SECTIONS.forEach(sec=>{
     const exercises=w.exercises[sec.id]||[];
-    const defaults=PHASE_DEFAULTS[phase][sec.id]||{};
+    const defaults=getDefaults(phase,sec.id,goal);
     const div=document.createElement('div');
     div.className='workout-section'; div.id='section-'+sec.id;
     const setting=currentSetting();
@@ -7060,7 +7110,8 @@ function addExercise(exId) {
   const w=getWorkout(); if(!w) return;
   const sectionId=pickerState.sectionId;
   const phase=parseInt(document.getElementById('b-phase').value);
-  const defaults=PHASE_DEFAULTS[phase][sectionId]||{};
+  const goal=document.getElementById('b-goal').value;
+  const defaults=getDefaults(phase,sectionId,goal);
   const swapIdx=pickerState.swapIdx;
   if(swapIdx!==null&&swapIdx!==undefined&&w.exercises[sectionId][swapIdx]){
     // Preserve the trainer's existing sets/reps/tempo/rest; swap the movement + muscles + default note.
@@ -7243,18 +7294,18 @@ function seedWeek1FatLoss() {
         { id:'ss-hamstring',  name:'Static Stretch: Hamstring', muscles:'Hamstrings',            sets:'1-3', reps:'1', tempo:'Hold 30s', rest:'0',    notes:'Seated or supine, hold 30s' },
       ],
       activation: [
-        { id:'core-bridge', name:'Glute Bridge',       muscles:'Glutes, Hamstrings, Core', sets:'1-3', reps:'12-20', tempo:'4-2-1-1', rest:'0-90s', notes:'Isometric hold or slow controlled reps' },
-        { id:'bal-slb',     name:'Single-Leg Balance', muscles:'Ankles, Knees, Hips',      sets:'1-3', reps:'12-20', tempo:'4-2-1-1', rest:'0-90s', notes:'30-60s each leg, eyes open — progress to eyes closed' },
+        { id:'core-bridge', name:'Glute Bridge',       muscles:'Glutes, Hamstrings, Core', sets:'2-3', reps:'12-20', tempo:'4-2-1-1', rest:'0', notes:'Isometric hold or slow controlled reps' },
+        { id:'bal-slb',     name:'Single-Leg Balance', muscles:'Ankles, Knees, Hips',      sets:'2-3', reps:'12-20', tempo:'4-2-1-1', rest:'0', notes:'30-60s each leg, eyes open — progress to eyes closed' },
       ],
       skilldevelopment: [
-        { id:'plyo-tempo-squat', name:'Tempo Squat (Low-Impact Sub)', muscles:'Quads, Glutes, Core', sets:'1-3', reps:'5-8', tempo:'Explosive up / 3-5s pause', rest:'0-90s', notes:'Apartment substitute for jump training — explosive concentric WITHOUT leaving the floor, pause at bottom. No noise for downstairs neighbors.' },
+        { id:'plyo-tempo-squat', name:'Tempo Squat (Low-Impact Sub)', muscles:'Quads, Glutes, Core', sets:'2-3', reps:'5-8', tempo:'Explosive up / 3-5s pause', rest:'0', notes:'Apartment substitute for jump training — explosive concentric WITHOUT leaving the floor, pause at bottom. No noise for downstairs neighbors.' },
       ],
       resistance: [
-        { id:'res-goblet-sq', name:'Goblet Squat',            muscles:'Quads, Glutes, Core',        sets:'1-3', reps:'12-20', tempo:'4-2-1-1', rest:'0-90s', notes:'SQUAT PATTERN — DB or KB at chest. Run as circuit, minimal rest between exercises' },
-        { id:'res-rdl',       name:'Romanian Deadlift',       muscles:'Hamstrings, Glutes, Erectors',sets:'1-3', reps:'12-20', tempo:'4-2-1-1', rest:'0-90s', notes:'HIP HINGE PATTERN — dumbbells, hinge at hips, neutral spine, slow eccentric' },
-        { id:'res-pushup',    name:'Push-Up',                 muscles:'Pectorals, Core, Triceps',   sets:'1-3', reps:'12-20', tempo:'4-2-1-1', rest:'0-90s', notes:'PUSH PATTERN — stabilization focus, neutral spine' },
-        { id:'res-pullup',    name:'Pull-Up / Chin-Up',       muscles:'Latissimus Dorsi, Biceps',   sets:'1-3', reps:'12-20', tempo:'4-2-1-1', rest:'0-90s', notes:'PULL PATTERN — pull-up bar. Use bands or assisted reps to hit the 12-20 rep range' },
-        { id:'res-lunge',     name:'Lunge (Forward / Reverse)',muscles:'Quads, Glutes, Hamstrings', sets:'1-3', reps:'12-20', tempo:'4-2-1-1', rest:'0-90s', notes:'LUNGE PATTERN — 90° both knees. Rest 0-90s, then repeat circuit' },
+        { id:'res-goblet-sq', name:'Goblet Squat',            muscles:'Quads, Glutes, Core',        sets:'2-3', reps:'12-20', tempo:'4-2-1-1', rest:'0', notes:'SQUAT PATTERN — DB or KB at chest. Circuit: move to next exercise with no rest' },
+        { id:'res-rdl',       name:'Romanian Deadlift',       muscles:'Hamstrings, Glutes, Erectors',sets:'2-3', reps:'12-20', tempo:'4-2-1-1', rest:'0', notes:'HIP HINGE PATTERN — dumbbells, hinge at hips, neutral spine, slow eccentric' },
+        { id:'res-pushup',    name:'Push-Up',                 muscles:'Pectorals, Core, Triceps',   sets:'2-3', reps:'12-20', tempo:'4-2-1-1', rest:'0', notes:'PUSH PATTERN — stabilization focus, neutral spine' },
+        { id:'res-pullup',    name:'Pull-Up / Chin-Up',       muscles:'Latissimus Dorsi, Biceps',   sets:'2-3', reps:'12-20', tempo:'4-2-1-1', rest:'0', notes:'PULL PATTERN — pull-up bar. Use bands or assisted reps to hit the 12-20 rep range' },
+        { id:'res-lunge',     name:'Lunge (Forward / Reverse)',muscles:'Quads, Glutes, Hamstrings', sets:'2-3', reps:'12-20', tempo:'4-2-1-1', rest:'60-90s', notes:'LUNGE PATTERN — 90° both knees. Last exercise: rest 60-90s before next round' },
       ],
       clientschoice: [
         { id:'cc-march', name:'Low-Impact Cardio (March / Shadow Box)', muscles:'Cardiorespiratory', sets:'1', reps:'1', tempo:'', rest:'', notes:'5-10 min — march in place, step jacks, or shadow boxing. Apartment-friendly active cardio block, no jumping.' },
