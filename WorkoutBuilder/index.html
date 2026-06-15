@@ -8189,7 +8189,8 @@ try {
   else if (lastView === 'builder' && state.currentWorkoutId && state.workouts[state.currentWorkoutId]) {
     document.getElementById('builder-tab').style.display = 'inline-flex';
     showView('builder');
-  } else { renderWeek(); }
+  } else if (lastView === 'exercises') { showView('exercises'); }
+  else { renderWeek(); }
 } catch(e) { renderWeek(); }
 
 // ===== FIREBASE =====
