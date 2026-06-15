@@ -75,33 +75,41 @@
   .week-label { font-size: 15px; font-weight: 600; color: var(--navy); min-width: 180px; text-align: center; }
   .btn-icon { background: var(--white); border: 1px solid var(--gray-300); border-radius: 6px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: var(--navy); transition: all 0.15s; }
   .btn-icon:hover { background: var(--blue-section-light); border-color: var(--navy-light); }
-  .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; }
+  /* Month grid */
+  .month-dow-row {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 4px;
+  }
+  .month-dow-cell {
+    text-align: center; font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--gray-500); padding: 4px 0;
+  }
+  .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
   .day-card {
     background: var(--white);
-    border-radius: 10px;
-    border: 2px solid var(--gray-200);
-    min-height: 160px;
+    border-radius: 8px;
+    border: 1.5px solid var(--gray-200);
+    min-height: 100px;
     overflow: hidden;
     transition: border-color 0.15s;
     display: flex;
     flex-direction: column;
   }
-  .day-card:hover { border-color: var(--navy-light); }
+  .day-card.day-empty { background: var(--gray-100); border-color: transparent; pointer-events: none; }
+  .day-card:not(.day-empty):hover { border-color: var(--navy-light); }
   .day-card.has-workout { border-color: var(--blue-section); }
   .day-header {
     background: var(--navy);
     color: white;
-    padding: 8px 12px;
-    font-size: 12px;
+    padding: 4px 8px;
+    font-size: 11px;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
-  .day-header .date-num { font-size: 16px; font-weight: 700; }
-  .day-body { padding: 10px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
+  .day-header.today-header { background: var(--accent); }
+  .day-header .date-num { font-size: 14px; font-weight: 700; }
+  .day-body { padding: 6px; flex: 1; display: flex; flex-direction: column; gap: 4px; }
   .day-workout-pill {
     background: var(--blue-section-light);
     border: 1px solid var(--blue-section);
@@ -116,15 +124,16 @@
     transition: background 0.15s;
   }
   .day-workout-pill:hover { background: #c5d9f2; }
-  .pill-name { font-weight: 600; color: var(--navy); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .pill-phase { background: var(--navy); color: white; border-radius: 3px; padding: 1px 5px; font-size: 10px; font-weight: 700; white-space: nowrap; }
-  .pill-remove { color: var(--gray-500); cursor: pointer; font-size: 14px; line-height: 1; flex-shrink: 0; }
+  .pill-name { font-weight: 600; color: var(--navy); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px; }
+  .pill-phase { background: var(--navy); color: white; border-radius: 3px; padding: 1px 4px; font-size: 9px; font-weight: 700; white-space: nowrap; }
+  .pill-remove { color: var(--gray-500); cursor: pointer; font-size: 12px; line-height: 1; flex-shrink: 0; }
   .pill-remove:hover { color: var(--red); }
+  .pill-date-badge { font-size: 9px; color: var(--accent); font-weight: 700; white-space: nowrap; }
   .day-add-btn {
-    color: var(--gray-500);
-    font-size: 12px;
+    color: var(--gray-400);
+    font-size: 11px;
     cursor: pointer;
-    padding: 4px;
+    padding: 3px;
     border-radius: 4px;
     display: flex;
     align-items: center;
@@ -135,7 +144,7 @@
     margin-top: auto;
   }
   .day-add-btn:hover { color: var(--navy); border-color: var(--navy-light); background: var(--blue-section-light); }
-  .day-rest { color: var(--gray-500); font-size: 12px; text-align: center; padding: 16px 0; font-style: italic; }
+  .day-rest { color: var(--gray-400); font-size: 11px; text-align: center; padding: 8px 0; font-style: italic; }
 
   /* ===== WORKOUT LIBRARY ===== */
   .library-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
@@ -467,13 +476,12 @@
     /* Week planner: horizontal scroll on small screens */
     .week-header { flex-wrap: wrap; gap: 8px; }
     .week-label { min-width: unset; font-size: 13px; }
-    .week-grid {
-      grid-template-columns: repeat(7, minmax(100px, 1fr));
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      padding-bottom: 8px;
-    }
-    .day-card { min-height: 120px; }
+    .week-grid { gap: 3px; }
+    .day-card { min-height: 72px; }
+    .day-body { padding: 4px; gap: 3px; }
+    .day-workout-pill { padding: 3px 5px; }
+    .day-add-btn { font-size: 10px; padding: 2px; }
+    .month-dow-cell { font-size: 10px; }
 
     /* Library: single column */
     .workout-grid { grid-template-columns: 1fr; }
@@ -632,7 +640,7 @@
 <div id="app-header">
   <div class="logo">NASM <span>OPT</span> Builder</div>
   <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showView('week')">📅 Week Planner</button>
+    <button class="nav-tab active" onclick="showView('week')">📅 Month Planner</button>
     <button class="nav-tab" onclick="showView('library')">📋 Workout Library</button>
     <button class="nav-tab" id="builder-tab" onclick="showView('builder')" style="display:none">✏️ Edit Workout</button>
     <button class="nav-tab" onclick="showView('exercises')">📚 Exercise Library</button>
@@ -649,16 +657,25 @@
 
 <div id="app-content">
 
-  <!-- WEEK PLANNER -->
+  <!-- WEEK PLANNER (month view) -->
   <div id="view-week" class="view active">
     <div class="week-header">
-      <h2>Week Planner</h2>
+      <h2>Month Planner</h2>
       <div class="week-nav">
-        <button class="btn-icon" onclick="changeWeek(-1)">&#8592;</button>
+        <button class="btn-icon" onclick="changeMonth(-1)">&#8592;</button>
         <div class="week-label" id="week-label"></div>
-        <button class="btn-icon" onclick="changeWeek(1)">&#8594;</button>
-        <button class="btn btn-secondary btn-sm" onclick="changeWeek(0)" style="margin-left:4px">Today</button>
+        <button class="btn-icon" onclick="changeMonth(1)">&#8594;</button>
+        <button class="btn btn-secondary btn-sm" onclick="changeMonth(0)" style="margin-left:4px">Today</button>
       </div>
+    </div>
+    <div class="month-dow-row">
+      <div class="month-dow-cell">Mon</div>
+      <div class="month-dow-cell">Tue</div>
+      <div class="month-dow-cell">Wed</div>
+      <div class="month-dow-cell">Thu</div>
+      <div class="month-dow-cell">Fri</div>
+      <div class="month-dow-cell">Sat</div>
+      <div class="month-dow-cell">Sun</div>
     </div>
     <div class="week-grid" id="week-grid"></div>
   </div>
@@ -6321,7 +6338,7 @@ let state = {
   workouts: {},
   weekPlans: {},
   currentWorkoutId: null,
-  currentWeekOffset: 0,
+  currentMonthOffset: 0,
 };
 
 let pickerState = { sectionId: null, activeSub: null, searchTerm: '' };
@@ -6342,24 +6359,37 @@ function loadState() {
 }
 function generateId() { return 'w_' + Date.now() + '_' + Math.random().toString(36).slice(2,7); }
 
-// ===== WEEK UTILITIES =====
-function getWeekKey(offset) {
-  const d = new Date(); d.setDate(d.getDate() + offset * 7);
+// ===== WEEK/MONTH UTILITIES =====
+function getWeekKeyForDate(d) {
   const y = d.getFullYear(); const s = new Date(y,0,1);
   const w = Math.ceil(((d-s)/86400000 + s.getDay()+1)/7);
   return `${y}-W${String(w).padStart(2,'0')}`;
 }
-function getWeekDates(offset) {
-  const d = new Date(); d.setDate(d.getDate() + offset*7);
-  const day = d.getDay(); d.setDate(d.getDate() + (day===0?-6:1-day));
-  return ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((label,i) => {
-    const dd = new Date(d); dd.setDate(d.getDate()+i); return { label, date: dd, key: label };
-  });
+// Legacy — kept for any existing weekPlans keys built by old week-based assign
+function getWeekKey(offset) {
+  const d = new Date(); d.setDate(d.getDate() + offset * 7);
+  return getWeekKeyForDate(d);
 }
-function getWeekLabel(offset) {
-  const days = getWeekDates(offset);
-  const fmt = d => d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
-  return `${fmt(days[0].date)} – ${fmt(days[6].date)}, ${days[0].date.getFullYear()}`;
+function getMonthLabel(offset) {
+  const d = new Date(); d.setDate(1); d.setMonth(d.getMonth()+offset);
+  return d.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+}
+function getMonthDates(offset) {
+  const now = new Date(); now.setDate(1); now.setMonth(now.getMonth()+offset);
+  const year=now.getFullYear(), month=now.getMonth();
+  const daysInMonth = new Date(year,month+1,0).getDate();
+  const firstDow = new Date(year,month,1).getDay(); // 0=Sun
+  // Monday-first grid: Mon=0 … Sun=6
+  const leadingBlanks = (firstDow===0)?6:firstDow-1;
+  const DAY_NAMES=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const cells=[];
+  for(let i=0;i<leadingBlanks;i++) cells.push(null);
+  for(let i=1;i<=daysInMonth;i++){
+    const dd=new Date(year,month,i);
+    const mm=String(month+1).padStart(2,'0'), dd2=String(i).padStart(2,'0');
+    cells.push({ date:dd, dateStr:`${year}-${mm}-${dd2}`, dayName:DAY_NAMES[dd.getDay()], dayNum:i });
+  }
+  return cells;
 }
 
 // ===== VIEW ROUTER =====
@@ -6377,38 +6407,50 @@ function showView(v) {
   if(v==='exercises') { if(!libInited){libInit();libInited=true;}else libApply(); }
 }
 
-// ===== WEEK PLANNER =====
-function changeWeek(dir) {
-  if(dir===0) state.currentWeekOffset=0; else state.currentWeekOffset+=dir;
+// ===== MONTH PLANNER =====
+function changeMonth(dir) {
+  if(dir===0) state.currentMonthOffset=0; else state.currentMonthOffset=(state.currentMonthOffset||0)+dir;
+  saveState();
   renderWeek();
 }
 function renderWeek() {
-  document.getElementById('week-label').textContent = getWeekLabel(state.currentWeekOffset);
-  const weekKey = getWeekKey(state.currentWeekOffset);
-  const days = getWeekDates(state.currentWeekOffset);
-  const plan = state.weekPlans[weekKey]||{};
+  document.getElementById('week-label').textContent = getMonthLabel(state.currentMonthOffset||0);
+  const cells = getMonthDates(state.currentMonthOffset||0);
+  const today = new Date().toDateString();
   const grid = document.getElementById('week-grid');
   grid.innerHTML = '';
-  days.forEach(({label,date,key}) => {
-    const assigned = plan[key]||[];
-    const isToday = date.toDateString()===new Date().toDateString();
+  cells.forEach(cell => {
     const card = document.createElement('div');
-    card.className = 'day-card'+(assigned.length>0?' has-workout':'');
-    card.innerHTML = `
-      <div class="day-header" ${isToday?'style="background:#f0a040"':''}>
-        <span>${label}</span><span class="date-num">${date.getDate()}</span>
+    if(!cell){
+      card.className='day-card day-empty';
+      grid.appendChild(card);
+      return;
+    }
+    const {date, dateStr, dayName, dayNum} = cell;
+    const weekKey = getWeekKeyForDate(date);
+    const manual = (state.weekPlans[weekKey]||{})[dayName]||[];
+    const autoIds = Object.values(state.workouts)
+      .filter(w => w.date===dateStr && !manual.includes(w.id))
+      .map(w=>w.id);
+    const assigned = [...manual, ...autoIds];
+    const isToday = date.toDateString()===today;
+    card.className='day-card'+(assigned.length>0?' has-workout':'');
+    card.innerHTML=`
+      <div class="day-header${isToday?' today-header':''}">
+        <span class="date-num">${dayNum}</span>
       </div>
       <div class="day-body">
         ${assigned.map(wid=>{
           const w=state.workouts[wid]; if(!w) return '';
+          const isAuto=autoIds.includes(wid);
           return `<div class="day-workout-pill" onclick="openWorkoutFromDay('${wid}')">
             <span class="pill-name">${w.name||'Unnamed'}</span>
             <span class="pill-phase">Ph ${w.phase}</span>
-            <span class="pill-remove" onclick="event.stopPropagation();removeFromDay('${weekKey}','${key}','${wid}')">&#x2715;</span>
+            ${isAuto?'':'<span class="pill-remove" onclick="event.stopPropagation();removeFromDay(\''+weekKey+'\',\''+dayName+'\',\''+wid+'\')">&#x2715;</span>'}
           </div>`;
         }).join('')}
-        ${assigned.length===0?'<div class="day-rest">Rest Day</div>':''}
-        <div class="day-add-btn" onclick="openAssignModal('${weekKey}','${key}')">+ Add Workout</div>
+        ${assigned.length===0?'<div class="day-rest">Rest</div>':''}
+        <div class="day-add-btn" onclick="openAssignModal('${weekKey}','${dayName}','${dateStr}')">+</div>
       </div>`;
     grid.appendChild(card);
   });
@@ -6425,7 +6467,7 @@ function removeFromDay(weekKey,dayKey,wid) {
 }
 
 // ===== ASSIGN MODAL =====
-function openAssignModal(weekKey,dayKey) {
+function openAssignModal(weekKey,dayKey,dateStr) {
   assignState={weekKey,dayKey};
   const list=document.getElementById('assign-list');
   const userWorkouts=Object.values(state.workouts).filter(w=>!w.id.startsWith('prog_')).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
@@ -6452,7 +6494,8 @@ function openAssignModal(weekKey,dayKey) {
   });
   if(!html) html='<div class="no-results" style="padding:30px">No saved workouts yet.<br><br><button class="btn btn-primary" onclick="closeAssign();newWorkout()">+ Create New Workout</button></div>';
   list.innerHTML=html;
-  document.getElementById('assign-title').textContent=`Assign to ${dayKey}`;
+  const titleDate = dateStr ? new Date(dateStr+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}) : dayKey;
+  document.getElementById('assign-title').textContent=`Assign to ${titleDate}`;
   document.getElementById('assign-modal').classList.add('open');
 }
 function closeAssign() { document.getElementById('assign-modal').classList.remove('open'); }
