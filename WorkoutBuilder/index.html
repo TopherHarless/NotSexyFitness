@@ -6593,6 +6593,9 @@ function showView(v) {
   document.querySelectorAll('.nav-tab').forEach(el=>{
     if(el.getAttribute('onclick')&&el.getAttribute('onclick').includes("'"+v+"'")) el.classList.add('active');
   });
+  // Full-bleed views live outside #app-content; hide it to eliminate padding gap
+  document.getElementById('app-content').style.display =
+    (v === 'exercises' || v === 'book') ? 'none' : '';
   try { localStorage.setItem('nasm_opt_last_view', v); } catch(e) {}
   if(v==='week') renderWeek();
   if(v==='library') renderLibrary();
