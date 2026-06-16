@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NASM OPT Workout Builder</title>
+<title>NotSexyFitness.com</title>
 <style>
   /* ===== BASE ===== */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -732,7 +732,7 @@
 <body>
 
 <div id="app-header">
-  <div class="logo">NASM <span>OPT</span> Builder</div>
+  <div class="logo">NotSexy<span>Fitness</span>.com</div>
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="showView('week')">📅 Month Planner</button>
     <button class="nav-tab" onclick="showView('library')">📋 Workout Library</button>
@@ -6593,6 +6593,9 @@ function showView(v) {
   document.querySelectorAll('.nav-tab').forEach(el=>{
     if(el.getAttribute('onclick')&&el.getAttribute('onclick').includes("'"+v+"'")) el.classList.add('active');
   });
+  // Full-bleed views live outside #app-content; hide it to eliminate padding gap
+  document.getElementById('app-content').style.display =
+    (v === 'exercises' || v === 'book') ? 'none' : '';
   try { localStorage.setItem('nasm_opt_last_view', v); } catch(e) {}
   if(v==='week') renderWeek();
   if(v==='library') renderLibrary();
