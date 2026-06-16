@@ -540,6 +540,97 @@
     .toast { font-size: 13px; }
   }
 
+  /* ===== NASM BOOK TAB ===== */
+  #view-book { display: none; }
+  #view-book.active { display: flex !important; gap: 0; height: calc(100vh - 56px); margin: -28px -20px; overflow: hidden; }
+
+  #book-nav {
+    width: 220px; min-width: 220px; background: var(--navy); color: white;
+    display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0;
+  }
+  #book-nav-header {
+    padding: 16px 16px 10px; font-size: 11px; font-weight: 800; letter-spacing: 1.5px;
+    text-transform: uppercase; color: rgba(255,255,255,0.55); border-bottom: 1px solid rgba(255,255,255,0.1);
+    flex-shrink: 0;
+  }
+  #book-nav ul { list-style: none; padding: 8px 0; margin: 0; }
+  #book-nav li a {
+    display: block; padding: 8px 16px; font-size: 13px; color: rgba(255,255,255,0.8);
+    text-decoration: none; cursor: pointer; line-height: 1.4; transition: background 0.1s, color 0.1s;
+    border-left: 3px solid transparent;
+  }
+  #book-nav li a:hover { background: rgba(255,255,255,0.1); color: white; }
+  #book-nav li a.active { background: rgba(255,255,255,0.15); color: white; border-left-color: var(--accent); font-weight: 600; }
+  #book-nav li a .ch-num { font-size: 10px; color: rgba(255,255,255,0.45); display: block; margin-bottom: 1px; }
+
+  #book-content {
+    flex: 1; overflow-y: auto; background: var(--bg);
+  }
+
+  /* Chapter content styles (scoped to book tab) */
+  #book-content .content-wrap { max-width: 800px; margin: 0 auto; padding: 40px 40px 80px; }
+  #book-content .chapter-hero {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+    color: white; padding: 40px 48px 36px; margin: -40px -40px 36px;
+  }
+  #book-content .chapter-hero .ch-num { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 10px; }
+  #book-content .chapter-hero h1 { font-size: 30px; font-weight: 700; line-height: 1.25; margin-bottom: 12px; }
+  #book-content .chapter-hero .ch-meta { font-size: 13px; color: rgba(255,255,255,0.65); }
+  #book-content .chapter-toc { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px 24px; margin-bottom: 36px; }
+  #book-content .chapter-toc h3 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--gray); margin-bottom: 12px; }
+  #book-content .chapter-toc ul { list-style: none; columns: 2; column-gap: 24px; padding: 0; margin: 0; }
+  #book-content .chapter-toc li { margin-bottom: 5px; break-inside: avoid; }
+  #book-content .chapter-toc a { color: var(--navy-light); text-decoration: none; font-size: 13px; }
+  #book-content .chapter-toc a:hover { text-decoration: underline; }
+  #book-content .chapter-toc .toc-sub a { color: var(--gray); font-size: 12px; padding-left: 12px; display: block; }
+  #book-content .chapter-label { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  #book-content .lesson-label { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--navy-light); margin: 28px 0 6px; }
+  #book-content .section-h1 { font-size: 25px; font-weight: 700; color: var(--navy); margin: 44px 0 16px; padding-top: 8px; }
+  #book-content .section-h2 { font-size: 20px; font-weight: 700; color: var(--navy-light); margin: 30px 0 12px; }
+  #book-content .section-h3 { font-size: 17px; font-weight: 700; color: var(--text); margin: 22px 0 8px; }
+  #book-content .bold-para { font-weight: 700; font-size: 17px; margin-bottom: 0.5em; }
+  #book-content .figure-label { font-size: 13px; color: var(--gray); font-style: italic; margin: 6px 0 20px; }
+  #book-content .book-figure { margin: 24px 0; text-align: center; }
+  #book-content .book-figure img { max-width: 100%; height: auto; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  #book-content .table-wrap { overflow-x: auto; margin: 20px 0 28px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  #book-content .book-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  #book-content .book-table th { background: var(--navy); color: white; padding: 10px 14px; text-align: left; font-size: 13px; font-weight: 600; }
+  #book-content .book-table td { padding: 9px 14px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+  #book-content .book-table tr:last-child td { border-bottom: none; }
+  #book-content .book-table tr:nth-child(even) td { background: #f8fafc; }
+  #book-content .special-block { border-radius: 8px; padding: 18px 22px; margin: 24px 0; border-left-width: 4px; border-left-style: solid; }
+  #book-content .special-block-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+  #book-content .special-block-body p { font-size: 15px; margin-bottom: 0.8em; }
+  #book-content .special-block-body p:last-child { margin-bottom: 0; }
+  #book-content .special-block-body ul,
+  #book-content .special-block-body ol { margin-bottom: 0.6em; padding-left: 20px; }
+  #book-content .special-block-body li { font-size: 15px; }
+  #book-content .content-wrap p { font-size: 16px; line-height: 1.7; margin-bottom: 1em; color: var(--text); }
+  #book-content .content-wrap ul,
+  #book-content .content-wrap ol { font-size: 16px; line-height: 1.7; margin-bottom: 1em; padding-left: 24px; color: var(--text); }
+  #book-content .content-wrap li { margin-bottom: 0.4em; }
+  #book-content .content-wrap h2 { font-size: 22px; font-weight: 700; color: var(--navy); margin: 36px 0 14px; }
+  #book-content .content-wrap h3 { font-size: 18px; font-weight: 700; color: var(--navy-light); margin: 24px 0 10px; }
+
+  #book-placeholder {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100%; color: var(--gray); text-align: center; padding: 40px;
+  }
+  #book-placeholder .bp-icon { font-size: 48px; margin-bottom: 16px; }
+  #book-placeholder h3 { font-size: 18px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+  #book-placeholder p { font-size: 14px; line-height: 1.6; max-width: 280px; }
+
+  /* Mobile: collapse nav to top select */
+  @media (max-width: 640px) {
+    #view-book.active { flex-direction: column; height: auto; min-height: calc(100vh - 56px); }
+    #book-nav { width: 100%; min-width: 0; height: auto; max-height: none; overflow: visible; }
+    #book-nav ul { display: none; }
+    #book-mobile-select { display: block !important; }
+    #book-content .chapter-hero { padding: 28px 24px 24px; margin: -40px -40px 28px; }
+    #book-content .content-wrap { padding: 28px 20px 60px; }
+    #book-content .chapter-toc ul { columns: 1; }
+  }
+
   /* ===== EXERCISE LIBRARY TAB ===== */
   #view-exercises {
     --lb:#f8f9fc;--ls:#ffffff;--ls2:#f1f5f9;--lbr:#e2e8f0;
