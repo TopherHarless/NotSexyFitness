@@ -634,6 +634,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="../auth.js"></script>
 </head>
 <body>
 
@@ -8253,7 +8254,7 @@ const firebaseConfig = {
   messagingSenderId: "1057577322874",
   appId: "1:1057577322874:web:57f0eb89fda9acacf8aec3"
 };
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
