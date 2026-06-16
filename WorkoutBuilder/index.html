@@ -6599,6 +6599,76 @@ function showView(v) {
   if(v==='book') bookOnActivate();
 }
 
+// ===== NASM BOOK =====
+let bookCurrentChapter = 0;
+
+function bookOnActivate() {
+  const saved = parseInt(localStorage.getItem('nasm_book_last_ch') || '0');
+  if (bookCurrentChapter === 0) {
+    loadChapter(saved > 0 ? saved : 1);
+  }
+}
+
+function loadChapter(n) {
+  if (!n || n < 1 || n > 23) return;
+  bookCurrentChapter = n;
+  try { localStorage.setItem('nasm_book_last_ch', String(n)); } catch(e) {}
+
+  // Update sidebar active state
+  document.querySelectorAll('#book-nav-list a').forEach(a => {
+    a.classList.toggle('active', +a.dataset.ch === n);
+  });
+  const sel = document.getElementById('book-mobile-select');
+  if (sel) sel.value = String(n);
+
+  const container = document.getElementById('book-content');
+  container.innerHTML = '<div style="padding:60px 40px;text-align:center;color:var(--gray);font-size:15px;">Loading chapter ' + n + '…</div>';
+
+  const pad = n < 10 ? '0' + n : String(n);
+  fetch('../ch' + pad + '.html')
+    .then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    })
+    .then(html => {
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const main = doc.getElementById('main');
+      if (!main) throw new Error('No #main found in chapter');
+
+      // Fix image paths: chapter files reference images/ relative to site root;
+      // from WorkoutBuilder/ they need ../images/
+      let content = main.innerHTML.replace(/src="images\//g, 'src="../images/');
+
+      container.innerHTML = content;
+      container.scrollTop = 0;
+
+      // Intercept chapter-to-chapter links so they navigate within the tab
+      container.querySelectorAll('a[href]').forEach(a => {
+        const href = a.getAttribute('href');
+        const m = href && href.match(/^(ch(\d+)\.html)(#.*)?$/);
+        if (m) {
+          const targetCh = parseInt(m[2]);
+          const hash = m[3] || '';
+          a.removeAttribute('href');
+          a.style.cursor = 'pointer';
+          a.addEventListener('click', e => {
+            e.preventDefault();
+            loadChapter(targetCh);
+            if (hash) {
+              setTimeout(() => {
+                const el = container.querySelector(hash);
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }, 300);
+            }
+          });
+        }
+      });
+    })
+    .catch(err => {
+      container.innerHTML = '<div style="padding:60px 40px;text-align:center;color:var(--red);">Failed to load chapter ' + n + ': ' + err.message + '</div>';
+    });
+}
+
 // ===== MONTH PLANNER =====
 function changeMonth(dir) {
   if(dir===0) state.currentMonthOffset=0; else state.currentMonthOffset=(state.currentMonthOffset||0)+dir;
