@@ -6596,6 +6596,7 @@ function showView(v) {
   if(v==='library') renderLibrary();
   if(v==='builder') renderBuilder();
   if(v==='exercises') { if(!libInited){libInit();libInited=true;}else libApply(); }
+  if(v==='book') bookOnActivate();
 }
 
 // ===== MONTH PLANNER =====
@@ -8402,6 +8403,7 @@ try {
     document.getElementById('builder-tab').style.display = 'inline-flex';
     showView('builder');
   } else if (lastView === 'exercises') { showView('exercises'); }
+  else if (lastView === 'book') { showView('book'); }
   else { renderWeek(); }
 } catch(e) { renderWeek(); }
 
