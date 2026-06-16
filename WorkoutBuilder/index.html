@@ -25,6 +25,8 @@
     --green: #38a169;
     --phase-badge: #e8f4d4;
     --phase-badge-text: #2d6a1e;
+    --bg: #f0f4f8;
+    --gray: #718096;
   }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--gray-100); color: var(--text); min-height: 100vh; }
 
@@ -538,6 +540,97 @@
     .toast { font-size: 13px; }
   }
 
+  /* ===== NASM BOOK TAB ===== */
+  #view-book { display: none; }
+  #view-book.active { display: flex !important; gap: 0; height: calc(100vh - 56px); margin: -28px -20px; overflow: hidden; }
+
+  #book-nav {
+    width: 220px; min-width: 220px; background: var(--navy); color: white;
+    display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0;
+  }
+  #book-nav-header {
+    padding: 16px 16px 10px; font-size: 11px; font-weight: 800; letter-spacing: 1.5px;
+    text-transform: uppercase; color: rgba(255,255,255,0.55); border-bottom: 1px solid rgba(255,255,255,0.1);
+    flex-shrink: 0;
+  }
+  #book-nav ul { list-style: none; padding: 8px 0; margin: 0; }
+  #book-nav li a {
+    display: block; padding: 8px 16px; font-size: 13px; color: rgba(255,255,255,0.8);
+    text-decoration: none; cursor: pointer; line-height: 1.4; transition: background 0.1s, color 0.1s;
+    border-left: 3px solid transparent;
+  }
+  #book-nav li a:hover { background: rgba(255,255,255,0.1); color: white; }
+  #book-nav li a.active { background: rgba(255,255,255,0.15); color: white; border-left-color: var(--accent); font-weight: 600; }
+  #book-nav li a .ch-num { font-size: 10px; color: rgba(255,255,255,0.45); display: block; margin-bottom: 1px; }
+
+  #book-content {
+    flex: 1; overflow-y: auto; background: var(--bg);
+  }
+
+  /* Chapter content styles (scoped to book tab) */
+  #book-content .content-wrap { max-width: 800px; margin: 0 auto; padding: 40px 40px 80px; }
+  #book-content .chapter-hero {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+    color: white; padding: 40px 48px 36px; margin: -40px -40px 36px;
+  }
+  #book-content .chapter-hero .ch-num { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 10px; }
+  #book-content .chapter-hero h1 { font-size: 30px; font-weight: 700; line-height: 1.25; margin-bottom: 12px; }
+  #book-content .chapter-hero .ch-meta { font-size: 13px; color: rgba(255,255,255,0.65); }
+  #book-content .chapter-toc { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px 24px; margin-bottom: 36px; }
+  #book-content .chapter-toc h3 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--gray); margin-bottom: 12px; }
+  #book-content .chapter-toc ul { list-style: none; columns: 2; column-gap: 24px; padding: 0; margin: 0; }
+  #book-content .chapter-toc li { margin-bottom: 5px; break-inside: avoid; }
+  #book-content .chapter-toc a { color: var(--navy-light); text-decoration: none; font-size: 13px; }
+  #book-content .chapter-toc a:hover { text-decoration: underline; }
+  #book-content .chapter-toc .toc-sub a { color: var(--gray); font-size: 12px; padding-left: 12px; display: block; }
+  #book-content .chapter-label { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  #book-content .lesson-label { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--navy-light); margin: 28px 0 6px; }
+  #book-content .section-h1 { font-size: 25px; font-weight: 700; color: var(--navy); margin: 44px 0 16px; padding-top: 8px; }
+  #book-content .section-h2 { font-size: 20px; font-weight: 700; color: var(--navy-light); margin: 30px 0 12px; }
+  #book-content .section-h3 { font-size: 17px; font-weight: 700; color: var(--text); margin: 22px 0 8px; }
+  #book-content .bold-para { font-weight: 700; font-size: 17px; margin-bottom: 0.5em; }
+  #book-content .figure-label { font-size: 13px; color: var(--gray); font-style: italic; margin: 6px 0 20px; }
+  #book-content .book-figure { margin: 24px 0; text-align: center; }
+  #book-content .book-figure img { max-width: 100%; height: auto; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  #book-content .table-wrap { overflow-x: auto; margin: 20px 0 28px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  #book-content .book-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  #book-content .book-table th { background: var(--navy); color: white; padding: 10px 14px; text-align: left; font-size: 13px; font-weight: 600; }
+  #book-content .book-table td { padding: 9px 14px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+  #book-content .book-table tr:last-child td { border-bottom: none; }
+  #book-content .book-table tr:nth-child(even) td { background: #f8fafc; }
+  #book-content .special-block { border-radius: 8px; padding: 18px 22px; margin: 24px 0; border-left-width: 4px; border-left-style: solid; }
+  #book-content .special-block-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+  #book-content .special-block-body p { font-size: 15px; margin-bottom: 0.8em; }
+  #book-content .special-block-body p:last-child { margin-bottom: 0; }
+  #book-content .special-block-body ul,
+  #book-content .special-block-body ol { margin-bottom: 0.6em; padding-left: 20px; }
+  #book-content .special-block-body li { font-size: 15px; }
+  #book-content .content-wrap p { font-size: 16px; line-height: 1.7; margin-bottom: 1em; color: var(--text); }
+  #book-content .content-wrap ul,
+  #book-content .content-wrap ol { font-size: 16px; line-height: 1.7; margin-bottom: 1em; padding-left: 24px; color: var(--text); }
+  #book-content .content-wrap li { margin-bottom: 0.4em; }
+  #book-content .content-wrap h2 { font-size: 22px; font-weight: 700; color: var(--navy); margin: 36px 0 14px; }
+  #book-content .content-wrap h3 { font-size: 18px; font-weight: 700; color: var(--navy-light); margin: 24px 0 10px; }
+
+  #book-placeholder {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100%; color: var(--gray); text-align: center; padding: 40px;
+  }
+  #book-placeholder .bp-icon { font-size: 48px; margin-bottom: 16px; }
+  #book-placeholder h3 { font-size: 18px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+  #book-placeholder p { font-size: 14px; line-height: 1.6; max-width: 280px; }
+
+  /* Mobile: collapse nav to top select */
+  @media (max-width: 640px) {
+    #view-book.active { flex-direction: column; height: auto; min-height: calc(100vh - 56px); }
+    #book-nav { width: 100%; min-width: 0; height: auto; max-height: none; overflow: visible; }
+    #book-nav ul { display: none; }
+    #book-mobile-select { display: block !important; }
+    #book-content .chapter-hero { padding: 28px 24px 24px; margin: -40px -40px 28px; }
+    #book-content .content-wrap { padding: 28px 20px 60px; }
+    #book-content .chapter-toc ul { columns: 1; }
+  }
+
   /* ===== EXERCISE LIBRARY TAB ===== */
   #view-exercises {
     --lb:#f8f9fc;--ls:#ffffff;--ls2:#f1f5f9;--lbr:#e2e8f0;
@@ -645,6 +738,7 @@
     <button class="nav-tab" onclick="showView('library')">📋 Workout Library</button>
     <button class="nav-tab" id="builder-tab" onclick="showView('builder')" style="display:none">✏️ Edit Workout</button>
     <button class="nav-tab" onclick="showView('exercises')">📚 Exercise Library</button>
+    <button class="nav-tab" id="book-tab" onclick="showView('book')">📖 NASM Book</button>
   </div>
   <div class="cue-mode-toggle" title="Switch cue language between Trainer (anatomical) and Client (plain-English)">
     <button class="cue-mode-btn active" id="cue-trainer-btn" onclick="setCueMode('trainer')">Trainer</button>
@@ -766,6 +860,72 @@
     <div style="background:white;border-radius:10px;border:1px solid var(--gray-200);padding:16px;margin-top:16px;">
       <label style="font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:8px;">Coaching Tips</label>
       <textarea id="b-coaching" rows="3" style="width:100%;border:1px solid var(--gray-300);border-radius:6px;padding:8px;font-size:13px;resize:vertical;outline:none;font-family:inherit;" placeholder="Session notes, cues, reminders..." oninput="markDirty()"></textarea>
+    </div>
+  </div>
+
+  <!-- NASM BOOK VIEW -->
+  <div id="view-book" class="view">
+    <div id="book-nav">
+      <div id="book-nav-header">NASM CPT-7</div>
+      <!-- Mobile chapter select (hidden on desktop) -->
+      <select id="book-mobile-select" style="display:none;width:100%;padding:10px 14px;background:rgba(255,255,255,0.12);color:white;border:none;border-bottom:1px solid rgba(255,255,255,0.15);font-size:14px;outline:none;cursor:pointer" onchange="loadChapter(+this.value)">
+        <option value="">— Select a Chapter —</option>
+        <option value="1">Ch 1 · Modern State of Health and Fitness</option>
+        <option value="2">Ch 2 · The Personal Training Profession</option>
+        <option value="3">Ch 3 · Psychology of Exercise</option>
+        <option value="4">Ch 4 · Behavioral Coaching</option>
+        <option value="5">Ch 5 · Nervous, Skeletal, and Muscular Systems</option>
+        <option value="6">Ch 6 · Cardiorespiratory, Endocrine, and Digestive Systems</option>
+        <option value="7">Ch 7 · Human Movement Science</option>
+        <option value="8">Ch 8 · Exercise Metabolism and Bioenergetics</option>
+        <option value="9">Ch 9 · Nutrition</option>
+        <option value="10">Ch 10 · Supplementation</option>
+        <option value="11">Ch 11 · Health, Wellness, and Fitness Assessments</option>
+        <option value="12">Ch 12 · Posture, Movement, and Performance Assessments</option>
+        <option value="13">Ch 13 · Integrated Training and the OPT Model</option>
+        <option value="14">Ch 14 · Flexibility Training Concepts</option>
+        <option value="15">Ch 15 · Cardiorespiratory Training Concepts</option>
+        <option value="16">Ch 16 · Core Training Concepts</option>
+        <option value="17">Ch 17 · Balance Training Concepts</option>
+        <option value="18">Ch 18 · Plyometric (Reactive) Training Concepts</option>
+        <option value="19">Ch 19 · Speed, Agility, and Quickness Training</option>
+        <option value="20">Ch 20 · Resistance Training Concepts</option>
+        <option value="21">Ch 21 · The Optimum Performance Training Model</option>
+        <option value="22">Ch 22 · Introduction to Exercise Modalities</option>
+        <option value="23">Ch 23 · Chronic Health Conditions and Special Populations</option>
+      </select>
+      <ul id="book-nav-list">
+        <li><a href="#" data-ch="1" onclick="loadChapter(1);return false;"><span class="ch-num">Chapter 1</span>Modern State of Health and Fitness</a></li>
+        <li><a href="#" data-ch="2" onclick="loadChapter(2);return false;"><span class="ch-num">Chapter 2</span>The Personal Training Profession</a></li>
+        <li><a href="#" data-ch="3" onclick="loadChapter(3);return false;"><span class="ch-num">Chapter 3</span>Psychology of Exercise</a></li>
+        <li><a href="#" data-ch="4" onclick="loadChapter(4);return false;"><span class="ch-num">Chapter 4</span>Behavioral Coaching</a></li>
+        <li><a href="#" data-ch="5" onclick="loadChapter(5);return false;"><span class="ch-num">Chapter 5</span>Nervous, Skeletal, and Muscular Systems</a></li>
+        <li><a href="#" data-ch="6" onclick="loadChapter(6);return false;"><span class="ch-num">Chapter 6</span>Cardiorespiratory, Endocrine, and Digestive Systems</a></li>
+        <li><a href="#" data-ch="7" onclick="loadChapter(7);return false;"><span class="ch-num">Chapter 7</span>Human Movement Science</a></li>
+        <li><a href="#" data-ch="8" onclick="loadChapter(8);return false;"><span class="ch-num">Chapter 8</span>Exercise Metabolism and Bioenergetics</a></li>
+        <li><a href="#" data-ch="9" onclick="loadChapter(9);return false;"><span class="ch-num">Chapter 9</span>Nutrition</a></li>
+        <li><a href="#" data-ch="10" onclick="loadChapter(10);return false;"><span class="ch-num">Chapter 10</span>Supplementation</a></li>
+        <li><a href="#" data-ch="11" onclick="loadChapter(11);return false;"><span class="ch-num">Chapter 11</span>Health, Wellness, and Fitness Assessments</a></li>
+        <li><a href="#" data-ch="12" onclick="loadChapter(12);return false;"><span class="ch-num">Chapter 12</span>Posture, Movement, and Performance Assessments</a></li>
+        <li><a href="#" data-ch="13" onclick="loadChapter(13);return false;"><span class="ch-num">Chapter 13</span>Integrated Training and the OPT Model</a></li>
+        <li><a href="#" data-ch="14" onclick="loadChapter(14);return false;"><span class="ch-num">Chapter 14</span>Flexibility Training Concepts</a></li>
+        <li><a href="#" data-ch="15" onclick="loadChapter(15);return false;"><span class="ch-num">Chapter 15</span>Cardiorespiratory Training Concepts</a></li>
+        <li><a href="#" data-ch="16" onclick="loadChapter(16);return false;"><span class="ch-num">Chapter 16</span>Core Training Concepts</a></li>
+        <li><a href="#" data-ch="17" onclick="loadChapter(17);return false;"><span class="ch-num">Chapter 17</span>Balance Training Concepts</a></li>
+        <li><a href="#" data-ch="18" onclick="loadChapter(18);return false;"><span class="ch-num">Chapter 18</span>Plyometric (Reactive) Training Concepts</a></li>
+        <li><a href="#" data-ch="19" onclick="loadChapter(19);return false;"><span class="ch-num">Chapter 19</span>Speed, Agility, and Quickness Training</a></li>
+        <li><a href="#" data-ch="20" onclick="loadChapter(20);return false;"><span class="ch-num">Chapter 20</span>Resistance Training Concepts</a></li>
+        <li><a href="#" data-ch="21" onclick="loadChapter(21);return false;"><span class="ch-num">Chapter 21</span>The Optimum Performance Training Model</a></li>
+        <li><a href="#" data-ch="22" onclick="loadChapter(22);return false;"><span class="ch-num">Chapter 22</span>Introduction to Exercise Modalities</a></li>
+        <li><a href="#" data-ch="23" onclick="loadChapter(23);return false;"><span class="ch-num">Chapter 23</span>Chronic Health Conditions and Special Populations</a></li>
+      </ul>
+    </div>
+    <div id="book-content">
+      <div id="book-placeholder">
+        <div class="bp-icon">📖</div>
+        <h3>NASM CPT-7 Study Guide</h3>
+        <p>Select a chapter from the left to start reading.</p>
+      </div>
     </div>
   </div>
 
@@ -6436,6 +6596,77 @@ function showView(v) {
   if(v==='library') renderLibrary();
   if(v==='builder') renderBuilder();
   if(v==='exercises') { if(!libInited){libInit();libInited=true;}else libApply(); }
+  if(v==='book') bookOnActivate();
+}
+
+// ===== NASM BOOK =====
+let bookCurrentChapter = 0;
+
+function bookOnActivate() {
+  const saved = parseInt(localStorage.getItem('nasm_book_last_ch') || '0');
+  if (bookCurrentChapter === 0) {
+    loadChapter(saved > 0 ? saved : 1);
+  }
+}
+
+function loadChapter(n) {
+  if (!n || n < 1 || n > 23) return;
+  bookCurrentChapter = n;
+  try { localStorage.setItem('nasm_book_last_ch', String(n)); } catch(e) {}
+
+  // Update sidebar active state
+  document.querySelectorAll('#book-nav-list a').forEach(a => {
+    a.classList.toggle('active', +a.dataset.ch === n);
+  });
+  const sel = document.getElementById('book-mobile-select');
+  if (sel) sel.value = String(n);
+
+  const container = document.getElementById('book-content');
+  container.innerHTML = '<div style="padding:60px 40px;text-align:center;color:var(--gray);font-size:15px;">Loading chapter ' + n + '…</div>';
+
+  const pad = n < 10 ? '0' + n : String(n);
+  fetch('../ch' + pad + '.html')
+    .then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    })
+    .then(html => {
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const main = doc.getElementById('main');
+      if (!main) throw new Error('No #main found in chapter');
+
+      // Fix image paths: chapter files reference images/ relative to site root;
+      // from WorkoutBuilder/ they need ../images/
+      let content = main.innerHTML.replace(/src="images\//g, 'src="../images/');
+
+      container.innerHTML = content;
+      container.scrollTop = 0;
+
+      // Intercept chapter-to-chapter links so they navigate within the tab
+      container.querySelectorAll('a[href]').forEach(a => {
+        const href = a.getAttribute('href');
+        const m = href && href.match(/^(ch(\d+)\.html)(#.*)?$/);
+        if (m) {
+          const targetCh = parseInt(m[2]);
+          const hash = m[3] || '';
+          a.removeAttribute('href');
+          a.style.cursor = 'pointer';
+          a.addEventListener('click', e => {
+            e.preventDefault();
+            loadChapter(targetCh);
+            if (hash) {
+              setTimeout(() => {
+                const el = container.querySelector(hash);
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }, 300);
+            }
+          });
+        }
+      });
+    })
+    .catch(err => {
+      container.innerHTML = '<div style="padding:60px 40px;text-align:center;color:var(--red);">Failed to load chapter ' + n + ': ' + err.message + '</div>';
+    });
 }
 
 // ===== MONTH PLANNER =====
@@ -8242,6 +8473,7 @@ try {
     document.getElementById('builder-tab').style.display = 'inline-flex';
     showView('builder');
   } else if (lastView === 'exercises') { showView('exercises'); }
+  else if (lastView === 'book') { showView('book'); }
   else { renderWeek(); }
 } catch(e) { renderWeek(); }
 
