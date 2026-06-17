@@ -6593,14 +6593,28 @@ function showView(v) {
   document.querySelectorAll('.nav-tab').forEach(el=>{
     if(el.getAttribute('onclick')&&el.getAttribute('onclick').includes("'"+v+"'")) el.classList.add('active');
   });
-  // Full-bleed views live outside #app-content; hide it to eliminate padding gap
-  document.getElementById('app-content').style.display =
-    (v === 'exercises' || v === 'book') ? 'none' : '';
+  // Full-bleed views live outside #app-content; collapse it to eliminate padding gap.
+  // visibility+height instead of display:none so libInit() can still measure DOM elements.
+  const ac = document.getElementById('app-content');
+  if (v === 'exercises' || v === 'book') {
+    ac.style.visibility = 'hidden'; ac.style.height = '0'; ac.style.overflow = 'hidden'; ac.style.padding = '0';
+  } else {
+    ac.style.visibility = ''; ac.style.height = ''; ac.style.overflow = ''; ac.style.padding = '';
+  }
   try { localStorage.setItem('nasm_opt_last_view', v); } catch(e) {}
   if(v==='week') renderWeek();
   if(v==='library') renderLibrary();
   if(v==='builder') renderBuilder();
-  if(v==='exercises') { if(!libInited){libInit();libInited=true;}else libApply(); }
+  if(v==='exercises') {
+    if(!libInited) {
+      try { libInit(); libInited=true; }
+      catch(e) {
+        // NASM_PATCH is declared after the init block; if called during page init it's in
+        // the TDZ. Retry after the script finishes so all consts are initialized.
+        setTimeout(function(){ if(!libInited){libInit();libInited=true;} }, 0);
+      }
+    } else { libApply(); }
+  }
   if(v==='book') bookOnActivate();
 }
 
@@ -8469,6 +8483,7 @@ function migrateProgramNames() {
 }
 
 // ===== INIT =====
+let libInited = false;
 localStorage.setItem('nasm_week1_seeded', '1'); // retired: users duplicate from program templates
 loadState(); seedProgramLibrary(); migrateProgramNames();
 try {
@@ -8555,7 +8570,6 @@ function saveToFirestore() {
 }
 
 // ===== EXERCISE LIBRARY TAB =====
-let libInited = false;
 let libPickerEx = null;
 const libSt = {
   search:'', sections:new Set(), phases:new Set(), equip:new Set(), subs:new Set(), view:'grid', hasVideo:false
