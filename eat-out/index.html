@@ -4,6 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Eat Out — NotSexyFitness</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script>
+  if (!firebase.apps.length) {
+    firebase.initializeApp({
+      apiKey:'AIzaSyCZ49TDQjIgHoOfna8yHg01W-Tc5D5Eidk',
+      authDomain:'notsexyfitness-72d40.firebaseapp.com',
+      projectId:'notsexyfitness-72d40',
+      storageBucket:'notsexyfitness-72d40.firebasestorage.app',
+      messagingSenderId:'1057577322874',
+      appId:'1:1057577322874:web:57f0eb89fda9acacf8aec3',
+    });
+  }
+</script>
 <script src="../auth.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -16,30 +30,41 @@
 html,body{height:100%;overflow:hidden}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column}
 
-/* HEADER */
-#hdr{
-  background:var(--navy);color:#fff;height:52px;padding:0 20px;
-  display:flex;align-items:center;gap:0;flex-shrink:0;
-  box-shadow:0 2px 8px rgba(0,0,0,.25);z-index:20;
+/* SHARED NAV */
+#app-header{
+  background:var(--navy);color:#fff;padding:0 24px;
+  display:flex;align-items:center;gap:32px;height:56px;flex-shrink:0;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);position:sticky;top:0;z-index:100;
 }
-.hdr-brand{font-size:13px;font-weight:700;color:rgba(255,255,255,.5);text-decoration:none}
-.hdr-brand em{color:#f0a040;font-style:normal}
-.hdr-sep{margin:0 8px;color:rgba(255,255,255,.25);font-size:14px}
-.hdr-title{font-size:18px;font-weight:700;letter-spacing:-.3px}
-.hdr-spacer{flex:1}
-.hdr-right{display:flex;align-items:center;gap:10px}
-#refresh-status{font-size:11px;color:rgba(255,255,255,.45)}
+#app-header .logo{font-size:18px;font-weight:700;letter-spacing:.5px;white-space:nowrap}
+#app-header .logo span{color:#f0a040}
+.cue-mode-toggle{display:flex;align-items:center;gap:0;border:1px solid rgba(255,255,255,.3);border-radius:20px;overflow:hidden;flex-shrink:0}
+.cue-mode-btn{padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:transparent;color:rgba(255,255,255,.55);transition:all .15s;white-space:nowrap}
+.cue-mode-btn.active{background:rgba(255,255,255,.22);color:#fff}
+.nav-tabs{display:flex;gap:4px}
+.nav-tab{
+  color:rgba(255,255,255,.7);padding:6px 18px;border-radius:6px;cursor:pointer;
+  font-size:14px;font-weight:500;transition:all .15s;border:none;background:none;
+  white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;
+}
+.nav-tab:hover{color:#fff;background:rgba(255,255,255,.12)}
+.nav-tab.active{color:#fff;background:rgba(255,255,255,.2)}
+
+/* MENU CONTROLS (Refresh + Suggest, relocated from header) */
+.menu-top-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.menu-controls{display:flex;align-items:center;gap:8px;flex-shrink:0}
+#refresh-status{font-size:11px;color:var(--gray-500)}
 #refresh-btn{
-  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
-  color:rgba(255,255,255,.8);padding:5px 11px;border-radius:5px;
+  background:var(--gray-100);border:1px solid var(--gray-300);
+  color:var(--gray-700);padding:5px 11px;border-radius:5px;
   font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;
 }
-#refresh-btn:hover:not(:disabled){background:rgba(255,255,255,.22);color:#fff}
+#refresh-btn:hover:not(:disabled){background:var(--gray-200);color:var(--text)}
 #refresh-btn:disabled{opacity:.5;cursor:not-allowed}
 
 /* SWITCH MESSAGE */
 #switch-msg{
-  position:fixed;top:60px;left:50%;transform:translateX(-50%);
+  position:fixed;top:65px;left:50%;transform:translateX(-50%);
   background:rgba(26,58,107,.95);color:#fff;padding:8px 18px;border-radius:20px;
   font-size:13px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.25);
   opacity:0;transition:opacity .2s;pointer-events:none;z-index:100;white-space:nowrap;
@@ -173,6 +198,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   font-size:12px;font-weight:600;cursor:pointer;transition:all .12s;
 }
 #clear-btn:hover{background:var(--gray-200);color:var(--text)}
+
+/* MOBILE — shared nav */
+@media(max-width:640px){
+  #app-header{height:auto;flex-wrap:wrap;gap:0;padding:8px 12px 0}
+  #app-header .logo{font-size:15px;padding-bottom:8px}
+  #auth-area{margin-left:auto!important}
+  #auth-user{display:none!important}
+  #auth-btn{font-size:11px!important;padding:4px 8px!important}
+  .nav-tabs{width:100%;border-top:1px solid rgba(255,255,255,.15);padding:6px 0;gap:2px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .nav-tab{padding:6px 10px;font-size:12px}
+}
 
 /* MOBILE */
 @media(max-width:767px){
@@ -313,17 +349,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </head>
 <body>
 
-<header id="hdr">
-  <a class="hdr-brand" href="/WorkoutBuilder/">Not<em>Sexy</em>Fitness</a>
-  <span class="hdr-sep">/</span>
-  <span class="hdr-title">Eat Out.</span>
-  <div class="hdr-spacer"></div>
-  <div class="hdr-right">
-    <button id="suggest-btn">Suggest a meal</button>
-    <span id="refresh-status">Using built-in data</span>
-    <button id="refresh-btn">Refresh</button>
+<div id="app-header">
+  <div class="logo">NotSexy<span>Fitness</span>.com</div>
+  <div class="nav-tabs">
+    <a class="nav-tab" href="/WorkoutBuilder/">📅 Month Planner</a>
+    <a class="nav-tab" href="/WorkoutBuilder/">📋 Workout Library</a>
+    <a class="nav-tab" href="/WorkoutBuilder/">📚 Exercise Library</a>
+    <a class="nav-tab" href="/WorkoutBuilder/">📖 NASM Book</a>
+    <span class="nav-tab active">🍽️ Eat Out</span>
   </div>
-</header>
+  <div class="cue-mode-toggle" title="Switch cue language between Trainer (anatomical) and Client (plain-English)">
+    <button class="cue-mode-btn active" id="cue-trainer-btn" onclick="setCueMode('trainer')">Trainer</button>
+    <button class="cue-mode-btn" id="cue-client-btn" onclick="setCueMode('client')">Client</button>
+  </div>
+  <div id="auth-area" style="margin-left:auto;display:flex;align-items:center;gap:10px;flex-shrink:0">
+    <span id="auth-user" style="font-size:13px;color:rgba(255,255,255,.75);white-space:nowrap;overflow:hidden;max-width:160px;text-overflow:ellipsis"></span>
+    <button id="auth-btn" onclick="toggleAuth()" style="background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.35);border-radius:6px;padding:5px 14px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">Sign In with Google</button>
+  </div>
+</div>
 
 <div id="switch-msg"></div>
 
@@ -350,8 +393,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- Menu browser -->
   <section id="menu">
     <div class="menu-top">
-      <h2 id="active-r-name"></h2>
-      <p>Pick your items, watch the numbers.</p>
+      <div class="menu-top-row">
+        <div>
+          <h2 id="active-r-name"></h2>
+          <p>Pick your items, watch the numbers.</p>
+        </div>
+        <div class="menu-controls">
+          <span id="refresh-status">Using built-in data</span>
+          <button id="refresh-btn">Refresh</button>
+          <button id="suggest-btn">Suggest a meal</button>
+        </div>
+      </div>
     </div>
     <div id="tabs"></div>
     <div id="sort-bar"></div>
@@ -1106,6 +1158,46 @@ function getSwapAlts(slot, currentName) {
 }
 
 init();
+})();
+
+// ===== SHARED NAV =====
+(function() {
+  var auth = firebase.auth();
+  var currentUser = null;
+
+  window.toggleAuth = function() {
+    if (currentUser) {
+      auth.signOut();
+    } else {
+      var provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider).catch(function(e) { console.error(e); });
+    }
+  };
+
+  window.setCueMode = function(mode) {
+    localStorage.setItem('nasm_cue_mode', mode);
+    var t = document.getElementById('cue-trainer-btn');
+    var c = document.getElementById('cue-client-btn');
+    if (t) t.classList.toggle('active', mode === 'trainer');
+    if (c) c.classList.toggle('active', mode === 'client');
+  };
+
+  auth.onAuthStateChanged(function(user) {
+    currentUser = user;
+    var btn = document.getElementById('auth-btn');
+    var userEl = document.getElementById('auth-user');
+    if (!btn) return;
+    if (user) {
+      btn.textContent = 'Sign Out';
+      if (userEl) userEl.textContent = user.displayName || user.email;
+    } else {
+      btn.textContent = 'Sign In with Google';
+      if (userEl) userEl.textContent = '';
+    }
+  });
+
+  // Restore cue mode preference
+  setCueMode(localStorage.getItem('nasm_cue_mode') || 'trainer');
 })();
 </script>
 </body>
