@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eat Out — NotSexyFitness</title>
+<script src="../auth.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1a3a6b;--navy-light:#2a5298;--accent:#e8861a;--bg:#f0f4f8;
+  --white:#fff;--text:#1a202c;--gray-100:#f5f7fa;--gray-200:#e8ecf0;
+  --gray-300:#d0d7e0;--gray-500:#8a96a3;--gray-700:#4a5568;
+  --green-txt:#276749;--green-bg:#f0fff4;--green-border:#9ae6b4;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column}
+
+/* HEADER */
+#hdr{
+  background:var(--navy);color:#fff;height:52px;padding:0 20px;
+  display:flex;align-items:center;gap:0;flex-shrink:0;
+  box-shadow:0 2px 8px rgba(0,0,0,.25);z-index:20;
+}
+.hdr-brand{font-size:13px;font-weight:700;color:rgba(255,255,255,.5);text-decoration:none}
+.hdr-brand em{color:#f0a040;font-style:normal}
+.hdr-sep{margin:0 8px;color:rgba(255,255,255,.25);font-size:14px}
+.hdr-title{font-size:18px;font-weight:700;letter-spacing:-.3px}
+.hdr-spacer{flex:1}
+.hdr-right{display:flex;align-items:center;gap:10px}
+#refresh-status{font-size:11px;color:rgba(255,255,255,.45)}
+#refresh-btn{
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
+  color:rgba(255,255,255,.8);padding:5px 11px;border-radius:5px;
+  font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;
+}
+#refresh-btn:hover:not(:disabled){background:rgba(255,255,255,.22);color:#fff}
+#refresh-btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* SWITCH MESSAGE */
+#switch-msg{
+  position:fixed;top:60px;left:50%;transform:translateX(-50%);
+  background:rgba(26,58,107,.95);color:#fff;padding:8px 18px;border-radius:20px;
+  font-size:13px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.25);
+  opacity:0;transition:opacity .2s;pointer-events:none;z-index:100;white-space:nowrap;
+}
+#switch-msg.show{opacity:1}
+
+/* LAYOUT */
+#layout{display:flex;flex:1;overflow:hidden;min-height:0}
+
+/* SIDEBAR */
+#sidebar{
+  width:180px;flex-shrink:0;background:var(--navy);
+  overflow-y:auto;border-right:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;
+}
+.sb-label{
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;
+  color:rgba(255,255,255,.3);padding:14px 14px 6px;
+}
+.r-btn{
+  display:block;width:100%;text-align:left;background:none;border:none;
+  padding:9px 14px;font-size:13px;font-weight:600;color:rgba(255,255,255,.65);
+  cursor:pointer;border-left:3px solid transparent;transition:all .12s;
+}
+.r-btn:hover{background:rgba(255,255,255,.07);color:#fff}
+.r-btn.active{background:rgba(255,255,255,.1);color:#fff;border-left-color:var(--accent)}
+
+/* MENU BROWSER */
+#menu{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.menu-top{padding:14px 20px 0;flex-shrink:0}
+.menu-top h2{font-size:17px;font-weight:700;color:var(--navy)}
+.menu-top p{font-size:12px;color:var(--gray-500);margin-top:1px}
+
+#tabs{
+  display:flex;overflow-x:auto;padding:10px 20px 0;flex-shrink:0;
+  border-bottom:2px solid var(--gray-200);scrollbar-width:none;
+}
+#tabs::-webkit-scrollbar{display:none}
+.tab-btn{
+  background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;
+  padding:7px 13px;font-size:13px;font-weight:600;color:var(--gray-500);
+  cursor:pointer;white-space:nowrap;transition:all .12s;flex-shrink:0;
+}
+.tab-btn:hover{color:var(--navy)}
+.tab-btn.active{color:var(--navy);border-bottom-color:var(--accent)}
+
+#items-wrap{flex:1;overflow-y:auto;padding:4px 20px 20px}
+.item-row{
+  display:flex;align-items:center;gap:10px;padding:10px 0;
+  border-bottom:1px solid var(--gray-200);
+}
+.item-row:last-child{border-bottom:none}
+.item-main{flex:1;min-width:0}
+.item-name-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px}
+.item-name{font-size:14px;font-weight:600;color:var(--text);line-height:1.3}
+.hp-badge{
+  background:var(--green-bg);color:var(--green-txt);
+  border:1px solid var(--green-border);border-radius:10px;
+  font-size:10px;font-weight:700;padding:1px 7px;white-space:nowrap;
+}
+.hf-badge{
+  background:#e6fffa;color:#234e52;
+  border:1px solid #81e6d9;border-radius:10px;
+  font-size:10px;font-weight:700;padding:1px 7px;white-space:nowrap;
+}
+#sort-bar{
+  display:flex;gap:6px;padding:8px 20px;flex-shrink:0;
+  overflow-x:auto;scrollbar-width:none;background:var(--gray-100);
+  border-bottom:1px solid var(--gray-200);
+}
+#sort-bar::-webkit-scrollbar{display:none}
+.sort-pill{
+  background:none;border:1px solid var(--gray-300);border-radius:20px;
+  padding:4px 12px;font-size:12px;font-weight:600;color:var(--gray-700);
+  cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .12s;
+}
+.sort-pill:hover{border-color:var(--navy);color:var(--navy)}
+.sort-pill.active{background:var(--navy);border-color:var(--navy);color:#fff}
+.item-stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat-cat{font-size:11px;color:var(--gray-500);font-style:italic;margin-left:4px}
+.stat{font-size:12px;color:var(--gray-500)}
+.stat-cal{font-size:12px;font-weight:700;color:var(--accent)}
+.stat-pro{font-size:12px;font-weight:700;color:var(--green-txt)}
+.add-btn{
+  background:var(--navy);color:#fff;border:none;border-radius:6px;
+  padding:6px 13px;font-size:12px;font-weight:700;cursor:pointer;
+  flex-shrink:0;transition:background .12s;
+}
+.add-btn:hover{background:var(--navy-light)}
+
+/* BUILDER */
+#builder{
+  width:240px;flex-shrink:0;background:var(--white);
+  border-left:1px solid var(--gray-200);display:flex;flex-direction:column;overflow:hidden;
+}
+.bld-hdr{
+  background:var(--navy);color:#fff;padding:12px 16px;flex-shrink:0;
+}
+.bld-hdr h3{font-size:13px;font-weight:700;margin-bottom:8px}
+.bld-totals{display:flex;flex-direction:column;gap:3px}
+.bld-total-row{display:flex;justify-content:space-between;align-items:baseline}
+.bld-total-label{font-size:11px;color:rgba(255,255,255,.55)}
+.bld-total-val{font-size:13px;font-weight:700}
+#bld-items{flex:1;overflow-y:auto;padding:4px 0}
+.bld-empty{
+  text-align:center;padding:28px 14px;
+  font-size:13px;color:var(--gray-500);line-height:1.5;
+}
+.bi{
+  display:flex;align-items:flex-start;gap:8px;
+  padding:8px 12px;border-bottom:1px solid var(--gray-200);
+}
+.bi-info{flex:1;min-width:0}
+.bi-name{font-size:12px;font-weight:600;color:var(--text);line-height:1.3;display:block;margin-bottom:3px}
+.bi-chips{display:flex;gap:4px;flex-wrap:wrap}
+.bi-chip{
+  background:var(--gray-100);border-radius:5px;
+  font-size:11px;padding:1px 6px;color:var(--gray-700);
+}
+.bi-chip-cal{background:#fff3e5;color:#a04800;border-radius:5px;font-size:11px;padding:1px 6px;font-weight:700}
+.bi-chip-pro{background:#e8f5e9;color:#1b5e20;border-radius:5px;font-size:11px;padding:1px 6px;font-weight:700}
+.rm-btn{
+  background:none;border:none;color:var(--gray-500);
+  font-size:18px;cursor:pointer;padding:0 2px;flex-shrink:0;
+  line-height:1;margin-top:-1px;transition:color .12s;
+}
+.rm-btn:hover{color:#e53e3e}
+.bld-foot{padding:10px 12px;border-top:1px solid var(--gray-200);flex-shrink:0}
+#clear-btn{
+  width:100%;background:var(--gray-100);border:1px solid var(--gray-200);
+  color:var(--gray-700);border-radius:6px;padding:7px;
+  font-size:12px;font-weight:600;cursor:pointer;transition:all .12s;
+}
+#clear-btn:hover{background:var(--gray-200);color:var(--text)}
+
+/* MOBILE */
+@media(max-width:767px){
+  html,body{height:auto;overflow:auto}
+  #sidebar{display:none}
+  #layout{flex-direction:column;overflow:visible}
+
+  #mobile-pills{
+    background:var(--navy);padding:10px 14px;
+    display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;flex-shrink:0;
+  }
+  #mobile-pills::-webkit-scrollbar{display:none}
+  .mpill{
+    background:rgba(255,255,255,.12);color:rgba(255,255,255,.75);
+    border:1px solid rgba(255,255,255,.2);border-radius:20px;
+    padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer;
+    white-space:nowrap;flex-shrink:0;transition:all .12s;
+  }
+  .mpill.active{background:rgba(255,255,255,.92);color:var(--navy);border-color:transparent}
+
+  #menu{overflow:visible}
+  #items-wrap{overflow:visible;max-height:none}
+
+  #builder{
+    width:100%;border-left:none;border-top:2px solid var(--gray-200);
+    max-height:none;
+  }
+  #bld-toggle{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:12px 16px;background:var(--navy);color:#fff;
+    font-size:14px;font-weight:700;cursor:pointer;user-select:none;
+  }
+  #bld-toggle-icon{font-size:12px;transition:transform .2s}
+  #bld-inner{overflow:hidden;max-height:0;transition:max-height .3s ease}
+}
+@media(min-width:768px){
+  #mobile-pills{display:none}
+  #bld-toggle{display:none}
+  #bld-inner{max-height:none!important;display:contents}
+}
+
+/* SUGGEST BUTTON */
+#suggest-btn{
+  background:var(--accent);color:#fff;border:none;border-radius:5px;
+  padding:5px 13px;font-size:12px;font-weight:700;cursor:pointer;
+  transition:background .15s;flex-shrink:0;
+}
+#suggest-btn:hover{background:#cf7716}
+
+/* SUGGEST PANEL */
+#suggest-panel{
+  background:var(--bg);border-bottom:2px solid var(--gray-300);
+  flex-shrink:0;display:none;
+}
+#suggest-panel.open{display:block}
+
+#suggest-ph{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 20px 0;
+}
+#suggest-ph-title{font-size:13px;font-weight:700;color:var(--navy)}
+#suggest-close{
+  background:none;border:none;color:var(--gray-500);
+  font-size:22px;cursor:pointer;line-height:1;padding:0 4px;
+}
+#suggest-close:hover{color:var(--text)}
+
+#suggest-body{padding:10px 20px 14px;overflow-x:auto}
+
+.suggest-spinner{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 0;color:var(--gray-500);font-size:13px;
+}
+.spinner-ring{
+  width:20px;height:20px;border:2px solid var(--gray-200);
+  border-top-color:var(--accent);border-radius:50%;
+  animation:spin .7s linear infinite;flex-shrink:0;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.suggest-error{color:#c53030;font-size:13px;padding:8px 0}
+
+.suggest-cards{display:flex;gap:14px}
+
+.combo-card{
+  background:var(--white);border:1px solid var(--gray-200);border-radius:10px;
+  padding:14px;min-width:270px;max-width:320px;flex-shrink:0;
+  box-shadow:0 1px 4px rgba(0,0,0,.06);
+}
+.combo-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:3px}
+.combo-reason{font-size:12px;color:var(--gray-700);margin-bottom:10px;line-height:1.4}
+
+.combo-slots{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.slot-label{
+  font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.7px;color:var(--gray-500);margin-bottom:2px;
+}
+.slot-row{display:flex;align-items:flex-start;gap:8px}
+.slot-info{flex:1;min-width:0}
+.slot-name{font-size:12px;font-weight:600;color:var(--text);display:block;margin-bottom:3px;line-height:1.3}
+.slot-chips{display:flex;gap:4px;flex-wrap:wrap}
+
+.swap-btn{
+  background:none;border:1px solid var(--gray-300);color:var(--gray-700);
+  border-radius:5px;padding:3px 8px;font-size:11px;font-weight:600;
+  cursor:pointer;flex-shrink:0;transition:all .12s;margin-top:1px;
+}
+.swap-btn:hover{border-color:var(--navy);color:var(--navy)}
+.swap-btn.active{border-color:var(--navy);color:var(--navy);background:var(--gray-100)}
+
+.swap-list{
+  margin-top:6px;border:1px solid var(--gray-200);border-radius:7px;
+  overflow:hidden;background:var(--white);
+}
+.swap-option{
+  display:flex;align-items:center;gap:8px;padding:7px 10px;
+  cursor:pointer;border-bottom:1px solid var(--gray-100);transition:background .1s;
+}
+.swap-option:last-child{border-bottom:none}
+.swap-option:hover{background:var(--gray-100)}
+.swap-opt-name{flex:1;font-size:12px;font-weight:600;color:var(--text);line-height:1.3}
+.swap-opt-chips{display:flex;gap:4px;flex-wrap:wrap}
+
+.combo-totals{
+  border-top:1px solid var(--gray-200);padding-top:10px;
+  margin-bottom:10px;display:flex;gap:16px;
+}
+.combo-total-item{display:flex;flex-direction:column}
+.combo-total-val{font-size:15px;font-weight:700;color:var(--text)}
+.combo-total-label{font-size:10px;color:var(--gray-500);text-transform:uppercase;letter-spacing:.5px}
+
+.combo-add-btn{
+  width:100%;background:var(--navy);color:#fff;border:none;border-radius:6px;
+  padding:8px;font-size:12px;font-weight:700;cursor:pointer;transition:background .12s;
+}
+.combo-add-btn:hover{background:var(--navy-light)}
+</style>
+</head>
+<body>
+
+<header id="hdr">
+  <a class="hdr-brand" href="/WorkoutBuilder/">Not<em>Sexy</em>Fitness</a>
+  <span class="hdr-sep">/</span>
+  <span class="hdr-title">Eat Out.</span>
+  <div class="hdr-spacer"></div>
+  <div class="hdr-right">
+    <button id="suggest-btn">Suggest a meal</button>
+    <span id="refresh-status">Using built-in data</span>
+    <button id="refresh-btn">Refresh</button>
+  </div>
+</header>
+
+<div id="switch-msg"></div>
+
+<!-- AI Suggestion Panel -->
+<div id="suggest-panel">
+  <div id="suggest-ph">
+    <span id="suggest-ph-title">AI Meal Suggestions</span>
+    <button id="suggest-close" aria-label="Close">×</button>
+  </div>
+  <div id="suggest-body"></div>
+</div>
+
+<div id="layout">
+
+  <!-- Desktop sidebar -->
+  <nav id="sidebar">
+    <div class="sb-label">Restaurants</div>
+    <div id="r-list"></div>
+  </nav>
+
+  <!-- Mobile pill selector -->
+  <div id="mobile-pills"></div>
+
+  <!-- Menu browser -->
+  <section id="menu">
+    <div class="menu-top">
+      <h2 id="active-r-name"></h2>
+      <p>Pick your items, watch the numbers.</p>
+    </div>
+    <div id="tabs"></div>
+    <div id="sort-bar"></div>
+    <div id="items-wrap"></div>
+  </section>
+
+  <!-- Meal builder -->
+  <aside id="builder">
+    <div id="bld-toggle">
+      <span id="bld-toggle-label">Today's meal</span>
+      <span id="bld-toggle-icon">▲</span>
+    </div>
+    <div id="bld-inner">
+      <div class="bld-hdr">
+        <h3>Today's meal</h3>
+        <div class="bld-totals">
+          <div class="bld-total-row">
+            <span class="bld-total-label">Calories</span>
+            <span class="bld-total-val" id="t-cal">0</span>
+          </div>
+          <div class="bld-total-row">
+            <span class="bld-total-label">Protein</span>
+            <span class="bld-total-val" id="t-pro">0g</span>
+          </div>
+          <div class="bld-total-row">
+            <span class="bld-total-label">Fiber</span>
+            <span class="bld-total-val" id="t-fib">0g</span>
+          </div>
+        </div>
+      </div>
+      <div id="bld-items">
+        <p class="bld-empty">Add items from the menu</p>
+      </div>
+      <div class="bld-foot">
+        <button id="clear-btn">Clear all</button>
+      </div>
+    </div>
+  </aside>
+
+</div><!-- #layout -->
+
+<script>
+(function(){
+'use strict';
+
+// ===== DATA =====
+const BUILT_IN_CFA = [{"name":"10 ct Chick-fil-A Chick-n-Minis®","category":"Breakfast","calories":910,"fat_g":34.0,"sat_fat_g":10.0,"carbs_g":103.0,"fiber_g":6.0,"sugar_g":19.0,"protein_g":49.0},{"name":"4 ct Chick-fil-A Chick-n-Minis®","category":"Breakfast","calories":360,"fat_g":13.0,"sat_fat_g":4.0,"carbs_g":41.0,"fiber_g":2.0,"sugar_g":8.0,"protein_g":20.0},{"name":"4 ct Mini Yeast Rolls","category":"Breakfast","calories":300,"fat_g":8.0,"sat_fat_g":2.5,"carbs_g":52.0,"fiber_g":2.0,"sugar_g":19.0,"protein_g":6.0},{"name":"Bacon, Egg & Cheese Biscuit","category":"Breakfast","calories":420,"fat_g":23.0,"sat_fat_g":11.0,"carbs_g":38.0,"fiber_g":2.0,"sugar_g":4.0,"protein_g":15.0},{"name":"Bacon, Egg & Cheese Muffin","category":"Breakfast","calories":300,"fat_g":13.0,"sat_fat_g":6.0,"carbs_g":28.0,"fiber_g":1.0,"sugar_g":2.0,"protein_g":16.0},{"name":"Berry Parfait","category":"Breakfast","calories":270,"fat_g":9.0,"sat_fat_g":3.5,"carbs_g":35.0,"fiber_g":1.0,"sugar_g":26.0,"protein_g":13.0},{"name":"Berry Parfait w/ Cookie Crumbs","category":"Breakfast","calories":240,"fat_g":8.0,"sat_fat_g":3.5,"carbs_g":31.0,"fiber_g":1.0,"sugar_g":25.0,"protein_g":12.0},{"name":"Berry Parfait w/ Granola","category":"Breakfast","calories":270,"fat_g":9.0,"sat_fat_g":3.5,"carbs_g":35.0,"fiber_g":1.0,"sugar_g":26.0,"protein_g":13.0},{"name":"Breakfast Breads","category":"Breakfast","calories":350,"fat_g":15.0,"sat_fat_g":6.0,"carbs_g":53.0,"fiber_g":2.0,"sugar_g":16.0,"protein_g":4.0},{"name":"Breakfast Waffle","category":"Breakfast","calories":320,"fat_g":15.0,"sat_fat_g":6.0,"carbs_g":46.0,"fiber_g":4.0,"sugar_g":24.0,"protein_g":4.0},{"name":"Buttery Biscuit","category":"Breakfast","calories":350,"fat_g":15.0,"sat_fat_g":6.0,"carbs_g":53.0,"fiber_g":2.0,"sugar_g":16.0,"protein_g":4.0},{"name":"Chick-fil-A® Chicken Biscuit","category":"Breakfast","calories":460,"fat_g":23.0,"sat_fat_g":8.0,"carbs_g":45.0,"fiber_g":2.0,"sugar_g":6.0,"protein_g":19.0},{"name":"Chicken & Waffles Breakfast Sandwich w/ Chick-fil-A® Filet","category":"Breakfast","calories":530,"fat_g":26.0,"sat_fat_g":9.0,"carbs_g":55.0,"fiber_g":4.0,"sugar_g":27.0,"protein_g":22.0},{"name":"Chicken & Waffles Breakfast Sandwich w/ Grilled Filet","category":"Breakfast","calories":440,"fat_g":19.0,"sat_fat_g":8.0,"carbs_g":47.0,"fiber_g":4.0,"sugar_g":25.0,"protein_g":20.0},{"name":"Chicken & Waffles Breakfast Sandwich w/ Spicy Filet","category":"Breakfast","calories":530,"fat_g":25.0,"sat_fat_g":9.0,"carbs_g":54.0,"fiber_g":5.0,"sugar_g":26.0,"protein_g":23.0},{"name":"Chicken, Egg & Cheese Biscuit","category":"Breakfast","calories":550,"fat_g":28.0,"sat_fat_g":12.0,"carbs_g":48.0,"fiber_g":3.0,"sugar_g":7.0,"protein_g":27.0},{"name":"Chicken, Egg & Cheese Muffin","category":"Breakfast","calories":410,"fat_g":18.0,"sat_fat_g":6.0,"carbs_g":36.0,"fiber_g":1.0,"sugar_g":4.0,"protein_g":27.0},{"name":"Egg White Grill","category":"Breakfast","calories":300,"fat_g":8.0,"sat_fat_g":4.0,"carbs_g":29.0,"fiber_g":1.0,"sugar_g":2.0,"protein_g":27.0},{"name":"English Muffin","category":"Breakfast","calories":200,"fat_g":1.0,"sat_fat_g":0.0,"carbs_g":43.0,"fiber_g":1.0,"sugar_g":13.0,"protein_g":5.0},{"name":"Hash Brown Scramble Bowl","category":"Breakfast","calories":470,"fat_g":30.0,"sat_fat_g":9.0,"carbs_g":19.0,"fiber_g":2.0,"sugar_g":2.0,"protein_g":29.0},{"name":"Hash Brown Scramble Bowl w/ Bacon","category":"Breakfast","calories":450,"fat_g":32.0,"sat_fat_g":11.0,"carbs_g":15.0,"fiber_g":2.0,"sugar_g":2.0,"protein_g":23.0},{"name":"Hash Brown Scramble Bowl w/ Bacon – no hash browns","category":"Breakfast","calories":300,"fat_g":22.0,"sat_fat_g":10.0,"carbs_g":2.0,"fiber_g":0.0,"sugar_g":2.0,"protein_g":22.0},{"name":"Hash Brown Scramble Bowl w/ Grilled Filet","category":"Breakfast","calories":410,"fat_g":26.0,"sat_fat_g":8.0,"carbs_g":15.0,"fiber_g":2.0,"sugar_g":2.0,"protein_g":30.0},{"name":"Hash Brown Scramble Bowl w/ Grilled Filet – no hash browns","category":"Breakfast","calories":270,"fat_g":16.0,"sat_fat_g":7.0,"carbs_g":2.0,"fiber_g":0.0,"sugar_g":2.0,"protein_g":29.0},{"name":"Hash Brown Scramble Bowl w/ No Meat","category":"Breakfast","calories":350,"fat_g":24.0,"sat_fat_g":8.0,"carbs_g":16.0,"fiber_g":3.0,"sugar_g":1.0,"protein_g":17.0},{"name":"Hash Brown Scramble Bowl w/ No Meat – no hash browns","category":"Breakfast","calories":200,"fat_g":14.0,"sat_fat_g":6.0,"carbs_g":3.0,"fiber_g":2.0,"sugar_g":1.0,"protein_g":16.0},{"name":"Hash Brown Scramble Bowl w/ Nuggets","category":"Breakfast","calories":470,"fat_g":30.0,"sat_fat_g":9.0,"carbs_g":19.0,"fiber_g":2.0,"sugar_g":2.0,"protein_g":29.0},{"name":"Hash Brown Scramble Bowl w/ Nuggets – no hash browns","category":"Breakfast","calories":320,"fat_g":20.0,"sat_fat_g":8.0,"carbs_g":7.0,"fiber_g":0.0,"sugar_g":2.0,"protein_g":28.0},{"name":"Hash Brown Scramble Bowl w/ Sausage","category":"Breakfast","calories":480,"fat_g":37.0,"sat_fat_g":12.0,"carbs_g":15.0,"fiber_g":2.0,"sugar_g":1.0,"protein_g":23.0},{"name":"Hash Brown Scramble Bowl w/ Sausage – no hash browns","category":"Breakfast","calories":340,"fat_g":27.0,"sat_fat_g":11.0,"carbs_g":2.0,"fiber_g":0.0,"sugar_g":1.0,"protein_g":21.0},{"name":"Hash Brown Scramble Bowl w/ Spicy Chicken","category":"Breakfast","calories":500,"fat_g":32.0,"sat_fat_g":9.0,"carbs_g":21.0,"fiber_g":3.0,"sugar_g":2.0,"protein_g":32.0},{"name":"Hash Brown Scramble Bowl w/ Spicy Chicken – no hash browns","category":"Breakfast","calories":350,"fat_g":22.0,"sat_fat_g":8.0,"carbs_g":9.0,"fiber_g":1.0,"sugar_g":2.0,"protein_g":31.0},{"name":"Hash Brown Scramble Burrito","category":"Breakfast","calories":700,"fat_g":40.0,"sat_fat_g":12.0,"carbs_g":51.0,"fiber_g":3.0,"sugar_g":2.0,"protein_g":34.0},{"name":"Hash Brown Scramble Burrito w/  Sausage","category":"Breakfast","calories":720,"fat_g":47.0,"sat_fat_g":16.0,"carbs_g":46.0,"fiber_g":3.0,"sugar_g":1.0,"protein_g":28.0},{"name":"Hash Brown Scramble Burrito w/ Bacon","category":"Breakfast","calories":680,"fat_g":42.0,"sat_fat_g":14.0,"carbs_g":46.0,"fiber_g":3.0,"sugar_g":2.0,"protein_g":30.0},{"name":"Hash Brown Scramble Burrito w/ Bacon – no hash browns","category":"Breakfast","calories":540,"fat_g":32.0,"sat_fat_g":13.0,"carbs_g":34.0,"fiber_g":2.0,"sugar_g":2.0,"protein_g":27.0},{"name":"Hash Brown Scramble Burrito w/ Grilled Filet","category":"Breakfast","calories":650,"fat_g":36.0,"sat_fat_g":12.0,"carbs_g":46.0,"fiber_g":3.0,"sugar_g":2.0,"protein_g":35.0},{"name":"Hash Brown Scramble Burrito w/ Grilled Filet – no hash brown","category":"Breakfast","calories":500,"fat_g":26.0,"sat_fat_g":10.0,"carbs_g":34.0,"fiber_g":2.0,"sugar_g":2.0,"protein_g":34.0},{"name":"Hash Brown Scramble Burrito w/ No Meat","category":"Breakfast","calories":580,"fat_g":34.0,"sat_fat_g":11.0,"carbs_g":47.0,"fiber_g":5.0,"sugar_g":1.0,"protein_g":22.0},{"name":"Hash Brown Scramble Burrito w/ No Meat – no hash browns","category":"Breakfast","calories":440,"fat_g":24.0,"sat_fat_g":10.0,"carbs_g":35.0,"fiber_g":3.0,"sugar_g":1.0,"protein_g":21.0},{"name":"Hash Brown Scramble Burrito w/ Nuggets","category":"Breakfast","calories":700,"fat_g":40.0,"sat_fat_g":12.0,"carbs_g":51.0,"fiber_g":3.0,"sugar_g":2.0,"protein_g":34.0},{"name":"Hash Brown Scramble Burrito w/ Nuggets – no hash browns","category":"Breakfast","calories":550,"fat_g":30.0,"sat_fat_g":11.0,"carbs_g":38.0,"fiber_g":2.0,"sugar_g":2.0,"protein_g":33.0},{"name":"Hash Brown Scramble Burrito w/ Sausage – no hash browns","category":"Breakfast","calories":570,"fat_g":37.0,"sat_fat_g":14.0,"carbs_g":34.0,"fiber_g":2.0,"sugar_g":1.0,"protein_g":26.0},{"name":"Hash Brown Scramble Burrito w/ Spicy Chicken","category":"Breakfast","calories":740,"fat_g":42.0,"sat_fat_g":13.0,"carbs_g":53.0,"fiber_g":4.0,"sugar_g":2.0,"protein_g":37.0},{"name":"Hash Brown Scramble Burrito w/ Spicy Chicken – no hash browns","category":"Breakfast","calories":590,"fat_g":32.0,"sat_fat_g":11.0,"carbs_g":40.0,"fiber_g":2.0,"sugar_g":2.0,"protein_g":36.0},{"name":"Large Fruit Cup","category":"Breakfast","calories":120,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":28.0,"fiber_g":4.0,"sugar_g":21.0,"protein_g":1.0},{"name":"Large Hash Browns","category":"Breakfast","calories":420,"fat_g":29.0,"sat_fat_g":4.0,"carbs_g":35.0,"fiber_g":4.0,"sugar_g":0.0,"protein_g":4.0},{"name":"Medium Fruit Cup","category":"Breakfast","calories":70,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":16.0,"fiber_g":2.0,"sugar_g":12.0,"protein_g":1.0},{"name":"Sausage, Egg & Cheese Biscuit","category":"Breakfast","calories":620,"fat_g":42.0,"sat_fat_g":18.0,"carbs_g":38.0,"fiber_g":2.0,"sugar_g":4.0,"protein_g":22.0},{"name":"Sausage, Egg & Cheese Muffin","category":"Breakfast","calories":490,"fat_g":32.0,"sat_fat_g":13.0,"carbs_g":29.0,"fiber_g":1.0,"sugar_g":1.0,"protein_g":23.0},{"name":"Small Fruit Cup","category":"Breakfast","calories":60,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":14.0,"fiber_g":2.0,"sugar_g":11.0,"protein_g":1.0},{"name":"Small Hash Browns","category":"Breakfast","calories":270,"fat_g":18.0,"sat_fat_g":2.5,"carbs_g":23.0,"fiber_g":3.0,"sugar_g":0.0,"protein_g":3.0},{"name":"Spicy Chicken Biscuit","category":"Breakfast","calories":450,"fat_g":22.0,"sat_fat_g":8.0,"carbs_g":44.0,"fiber_g":3.0,"sugar_g":5.0,"protein_g":19.0},{"name":"10 ct Chick-fil-A Chick-n-Strips®","category":"Entrées","calories":1020,"fat_g":46.0,"sat_fat_g":9.0,"carbs_g":54.0,"fiber_g":0.0,"sugar_g":6.0,"protein_g":96.0},{"name":"12 ct Chick-fil-A® Nuggets","category":"Entrées","calories":380,"fat_g":17.0,"sat_fat_g":3.5,"carbs_g":16.0,"fiber_g":0.0,"sugar_g":1.0,"protein_g":40.0},{"name":"12 ct Grilled Nuggets","category":"Entrées","calories":200,"fat_g":4.5,"sat_fat_g":1.0,"carbs_g":2.0,"fiber_g":0.0,"sugar_g":1.0,"protein_g":38.0},{"name":"2 ct Chick-fil-A Chick-n-Strips®","category":"Entrées","calories":200,"fat_g":9.0,"sat_fat_g":2.0,"carbs_g":11.0,"fiber_g":0.0,"sugar_g":1.0,"protein_g":19.0},{"name":"3 ct Chick-fil-A Chick-n-Strips®","category":"Entrées","calories":310,"fat_g":14.0,"sat_fat_g":2.5,"carbs_g":16.0,"fiber_g":0.0,"sugar_g":2.0,"protein_g":29.0},{"name":"30 ct Chick-fil-A® Nuggets","category":"Entrées","calories":950,"fat_g":43.0,"sat_fat_g":9.0,"carbs_g":41.0,"fiber_g":0.0,"sugar_g":4.0,"protein_g":100.0},{"name":"30 ct Grilled Nuggets","category":"Entrées","calories":510,"fat_g":11.0,"sat_fat_g":3.0,"carbs_g":4.0,"fiber_g":1.0,"sugar_g":3.0,"protein_g":98.0},{"name":"4 ct Chick-fil-A Chick-n-Strips®","category":"Entrées","calories":410,"fat_g":19.0,"sat_fat_g":3.5,"carbs_g":22.0,"fiber_g":0.0,"sugar_g":2.0,"protein_g":39.0},{"name":"8 ct Chick-fil-A® Nuggets","category":"Entrées","calories":250,"fat_g":11.0,"sat_fat_g":2.5,"carbs_g":11.0,"fiber_g":0.0,"sugar_g":1.0,"protein_g":27.0},{"name":"8 ct Grilled Nuggets","category":"Entrées","calories":130,"fat_g":3.0,"sat_fat_g":0.5,"carbs_g":1.0,"fiber_g":0.0,"sugar_g":1.0,"protein_g":25.0},{"name":"Chick-fil-A Cool Wrap®","category":"Entrées","calories":660,"fat_g":45.0,"sat_fat_g":9.0,"carbs_g":32.0,"fiber_g":14.0,"sugar_g":5.0,"protein_g":43.0},{"name":"Chick-fil-A® Chicken Sandwich","category":"Entrées","calories":420,"fat_g":18.0,"sat_fat_g":3.5,"carbs_g":41.0,"fiber_g":1.0,"sugar_g":6.0,"protein_g":29.0},{"name":"Chick-fil-A® Deluxe Sandwich","category":"Entrées","calories":490,"fat_g":22.0,"sat_fat_g":6.0,"carbs_g":43.0,"fiber_g":1.0,"sugar_g":7.0,"protein_g":32.0},{"name":"Chick-fil-A® Deluxe Sandwich w/ American","category":"Entrées","calories":490,"fat_g":22.0,"sat_fat_g":6.0,"carbs_g":43.0,"fiber_g":1.0,"sugar_g":7.0,"protein_g":32.0},{"name":"Chick-fil-A® Deluxe Sandwich w/ Colby Jack","category":"Entrées","calories":510,"fat_g":24.0,"sat_fat_g":8.0,"carbs_g":43.0,"fiber_g":1.0,"sugar_g":7.0,"protein_g":34.0},{"name":"Chick-fil-A® Deluxe Sandwich w/ No Cheese","category":"Entrées","calories":430,"fat_g":18.0,"sat_fat_g":3.5,"carbs_g":43.0,"fiber_g":1.0,"sugar_g":7.0,"protein_g":29.0},{"name":"Chick-fil-A® Deluxe Sandwich w/ Pepper Jack","category":"Entrées","calories":520,"fat_g":24.0,"sat_fat_g":8.0,"carbs_g":43.0,"fiber_g":1.0,"sugar_g":7.0,"protein_g":35.0},{"name":"Chick-fil-A® Grilled Chicken Club Sandwich","category":"Entrées","calories":520,"fat_g":22.0,"sat_fat_g":8.0,"carbs_g":45.0,"fiber_g":3.0,"sugar_g":12.0,"protein_g":37.0},{"name":"Chicken & Waffles Sandwich w/ Chick-fil-A® Filet","category":"Entrées","calories":690,"fat_g":34.0,"sat_fat_g":11.0,"carbs_g":66.0,"fiber_g":5.0,"sugar_g":29.0,"protein_g":32.0},{"name":"Chicken & Waffles Sandwich w/ Grilled Filet","category":"Entrées","calories":540,"fat_g":24.0,"sat_fat_g":9.0,"carbs_g":55.0,"fiber_g":5.0,"sugar_g":28.0,"protein_g":29.0},{"name":"Chicken & Waffles Sandwich w/ Spicy Filet","category":"Entrées","calories":710,"fat_g":35.0,"sat_fat_g":12.0,"carbs_g":70.0,"fiber_g":6.0,"sugar_g":29.0,"protein_g":31.0},{"name":"Grilled Chicken Club w/ American","category":"Entrées","calories":490,"fat_g":19.0,"sat_fat_g":6.0,"carbs_g":45.0,"fiber_g":3.0,"sugar_g":12.0,"protein_g":34.0},{"name":"Grilled Chicken Club w/ Colby Jack","category":"Entrées","calories":520,"fat_g":22.0,"sat_fat_g":8.0,"carbs_g":45.0,"fiber_g":3.0,"sugar_g":12.0,"protein_g":37.0},{"name":"Grilled Chicken Club w/ No Cheese","category":"Entrées","calories":440,"fat_g":15.0,"sat_fat_g":4.0,"carbs_g":45.0,"fiber_g":3.0,"sugar_g":11.0,"protein_g":31.0},{"name":"Grilled Chicken Club w/ Pepper Jack","category":"Entrées","calories":520,"fat_g":22.0,"sat_fat_g":8.0,"carbs_g":45.0,"fiber_g":3.0,"sugar_g":12.0,"protein_g":37.0},{"name":"Grilled Chicken Sandwich","category":"Entrées","calories":390,"fat_g":11.0,"sat_fat_g":2.5,"carbs_g":45.0,"fiber_g":3.0,"sugar_g":11.0,"protein_g":28.0},{"name":"Spicy Chicken Sandwich","category":"Entrées","calories":450,"fat_g":19.0,"sat_fat_g":4.0,"carbs_g":45.0,"fiber_g":1.0,"sugar_g":6.0,"protein_g":28.0},{"name":"Spicy Deluxe Sandwich","category":"Entrées","calories":540,"fat_g":26.0,"sat_fat_g":8.0,"carbs_g":47.0,"fiber_g":2.0,"sugar_g":7.0,"protein_g":34.0},{"name":"Spicy Deluxe Sandwich w/ American","category":"Entrées","calories":510,"fat_g":23.0,"sat_fat_g":6.0,"carbs_g":47.0,"fiber_g":2.0,"sugar_g":7.0,"protein_g":31.0},{"name":"Spicy Deluxe Sandwich w/ Colby Jack","category":"Entrées","calories":540,"fat_g":26.0,"sat_fat_g":8.0,"carbs_g":47.0,"fiber_g":2.0,"sugar_g":7.0,"protein_g":34.0},{"name":"Spicy Deluxe Sandwich w/ No Cheese","category":"Entrées","calories":460,"fat_g":19.0,"sat_fat_g":4.0,"carbs_g":46.0,"fiber_g":2.0,"sugar_g":7.0,"protein_g":28.0},{"name":"Spicy Deluxe Sandwich w/ Pepper Jack","category":"Entrées","calories":540,"fat_g":26.0,"sat_fat_g":8.0,"carbs_g":47.0,"fiber_g":2.0,"sugar_g":7.0,"protein_g":34.0},{"name":"Cobb Salad","category":"Salads","calories":830,"fat_g":60.0,"sat_fat_g":13.0,"carbs_g":31.0,"fiber_g":5.0,"sugar_g":8.0,"protein_g":41.0},{"name":"Cobb Salad w/ Chick-fil-A Chick-n-Strips®","category":"Salads","calories":810,"fat_g":56.0,"sat_fat_g":12.0,"carbs_g":31.0,"fiber_g":5.0,"sugar_g":9.0,"protein_g":43.0},{"name":"Cobb Salad w/ Grilled Filet (Cold)","category":"Salads","calories":610,"fat_g":44.0,"sat_fat_g":10.0,"carbs_g":16.0,"fiber_g":5.0,"sugar_g":8.0,"protein_g":35.0},{"name":"Cobb Salad w/ Grilled Filet (Warm)","category":"Salads","calories":600,"fat_g":44.0,"sat_fat_g":10.0,"carbs_g":16.0,"fiber_g":5.0,"sugar_g":8.0,"protein_g":35.0},{"name":"Cobb Salad w/ Grilled Nuggets","category":"Salads","calories":630,"fat_g":45.0,"sat_fat_g":10.0,"carbs_g":16.0,"fiber_g":5.0,"sugar_g":8.0,"protein_g":39.0},{"name":"Cobb Salad w/ No Chicken","category":"Salads","calories":500,"fat_g":42.0,"sat_fat_g":9.5,"carbs_g":15.0,"fiber_g":5.0,"sugar_g":7.0,"protein_g":14.0},{"name":"Cobb Salad w/ Nuggets","category":"Salads","calories":830,"fat_g":60.0,"sat_fat_g":13.0,"carbs_g":31.0,"fiber_g":5.0,"sugar_g":8.0,"protein_g":41.0},{"name":"Cobb Salad w/ Spicy Grilled Filet (Cold)","category":"Salads","calories":600,"fat_g":45.0,"sat_fat_g":10.0,"carbs_g":16.0,"fiber_g":5.0,"sugar_g":8.0,"protein_g":33.0},{"name":"Market Salad","category":"Salads","calories":550,"fat_g":31.0,"sat_fat_g":6.0,"carbs_g":42.0,"fiber_g":5.0,"sugar_g":26.0,"protein_g":28.0},{"name":"Market Salad w/ Chick-fil-A Chick-n-Strips®","category":"Salads","calories":750,"fat_g":43.0,"sat_fat_g":8.0,"carbs_g":57.0,"fiber_g":5.0,"sugar_g":27.0,"protein_g":36.0},{"name":"Market Salad w/ Grilled Filet (Cold)","category":"Salads","calories":550,"fat_g":31.0,"sat_fat_g":6.0,"carbs_g":42.0,"fiber_g":5.0,"sugar_g":26.0,"protein_g":28.0},{"name":"Market Salad w/ Grilled Filet (Warm)","category":"Salads","calories":550,"fat_g":31.0,"sat_fat_g":6.0,"carbs_g":42.0,"fiber_g":5.0,"sugar_g":26.0,"protein_g":28.0},{"name":"Market Salad w/ Grilled Nuggets","category":"Salads","calories":570,"fat_g":32.0,"sat_fat_g":6.0,"carbs_g":41.0,"fiber_g":6.0,"sugar_g":27.0,"protein_g":32.0},{"name":"Market Salad w/ No Chicken","category":"Salads","calories":440,"fat_g":29.0,"sat_fat_g":5.5,"carbs_g":40.0,"fiber_g":5.0,"sugar_g":26.0,"protein_g":7.0},{"name":"Market Salad w/ Nuggets","category":"Salads","calories":700,"fat_g":40.0,"sat_fat_g":8.0,"carbs_g":51.0,"fiber_g":5.0,"sugar_g":27.0,"protein_g":34.0},{"name":"Market Salad w/ Spicy Grilled Filet (Cold)","category":"Salads","calories":540,"fat_g":31.0,"sat_fat_g":6.0,"carbs_g":42.0,"fiber_g":6.0,"sugar_g":27.0,"protein_g":26.0},{"name":"Spicy Southwest Salad","category":"Salads","calories":680,"fat_g":49.0,"sat_fat_g":10.0,"carbs_g":27.0,"fiber_g":7.0,"sugar_g":7.0,"protein_g":33.0},{"name":"Spicy Southwest Salad w/ Chick-fil-A Chick-n-Strips®","category":"Salads","calories":880,"fat_g":60.0,"sat_fat_g":12.0,"carbs_g":41.0,"fiber_g":7.0,"sugar_g":8.0,"protein_g":43.0},{"name":"Spicy Southwest Salad w/ Grilled Filet (Cold)","category":"Salads","calories":680,"fat_g":48.0,"sat_fat_g":9.5,"carbs_g":26.0,"fiber_g":7.0,"sugar_g":7.0,"protein_g":35.0},{"name":"Spicy Southwest Salad w/ Grilled Filet (Warm)","category":"Salads","calories":680,"fat_g":48.0,"sat_fat_g":9.5,"carbs_g":26.0,"fiber_g":7.0,"sugar_g":7.0,"protein_g":35.0},{"name":"Spicy Southwest Salad w/ Grilled Nuggets","category":"Salads","calories":700,"fat_g":49.0,"sat_fat_g":10.0,"carbs_g":26.0,"fiber_g":7.0,"sugar_g":7.0,"protein_g":39.0},{"name":"Spicy Southwest Salad w/ No Chicken","category":"Salads","calories":570,"fat_g":47.0,"sat_fat_g":9.5,"carbs_g":25.0,"fiber_g":7.0,"sugar_g":6.0,"protein_g":14.0},{"name":"Spicy Southwest Salad w/ Nuggets","category":"Salads","calories":800,"fat_g":56.0,"sat_fat_g":11.0,"carbs_g":35.0,"fiber_g":7.0,"sugar_g":7.0,"protein_g":39.0},{"name":"Spicy Southwest Salad w/ Spicy Grilled Filet (Cold)","category":"Salads","calories":680,"fat_g":49.0,"sat_fat_g":10.0,"carbs_g":27.0,"fiber_g":7.0,"sugar_g":7.0,"protein_g":33.0},{"name":"Berry Parfait","category":"Sides","calories":270,"fat_g":9.0,"sat_fat_g":3.5,"carbs_g":35.0,"fiber_g":1.0,"sugar_g":26.0,"protein_g":13.0},{"name":"Berry Parfait w/ Cookie Crumbs","category":"Sides","calories":240,"fat_g":8.0,"sat_fat_g":3.5,"carbs_g":31.0,"fiber_g":1.0,"sugar_g":25.0,"protein_g":12.0},{"name":"Berry Parfait w/ Granola","category":"Sides","calories":270,"fat_g":9.0,"sat_fat_g":3.5,"carbs_g":35.0,"fiber_g":1.0,"sugar_g":26.0,"protein_g":13.0},{"name":"Bowl of Chicken Noodle Soup","category":"Sides","calories":320,"fat_g":8.0,"sat_fat_g":2.0,"carbs_g":42.0,"fiber_g":3.0,"sugar_g":3.0,"protein_g":20.0},{"name":"Buddy Fruits® Apple Sauce","category":"Sides","calories":45,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":12.0,"fiber_g":1.0,"sugar_g":8.0,"protein_g":0.0},{"name":"Chick-fil-A® Sauce Flavored Waffle Potato Chips","category":"Sides","calories":210,"fat_g":12.0,"sat_fat_g":3.0,"carbs_g":26.0,"fiber_g":2.0,"sugar_g":3.0,"protein_g":3.0},{"name":"Chicken Tortilla Soup","category":"Sides","calories":280,"fat_g":7.0,"sat_fat_g":2.5,"carbs_g":31.0,"fiber_g":17.0,"sugar_g":4.0,"protein_g":24.0},{"name":"Cup of Chicken Noodle Soup","category":"Sides","calories":190,"fat_g":4.5,"sat_fat_g":1.0,"carbs_g":27.0,"fiber_g":2.0,"sugar_g":2.0,"protein_g":11.0},{"name":"Kale Crunch Side","category":"Sides","calories":170,"fat_g":12.0,"sat_fat_g":1.5,"carbs_g":13.0,"fiber_g":4.0,"sugar_g":8.0,"protein_g":4.0},{"name":"Large Chick-fil-A Waffle Potato Fries®","category":"Sides","calories":600,"fat_g":35.0,"sat_fat_g":5.0,"carbs_g":65.0,"fiber_g":7.0,"sugar_g":1.0,"protein_g":7.0},{"name":"Large Fruit Cup","category":"Sides","calories":120,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":28.0,"fiber_g":4.0,"sugar_g":21.0,"protein_g":1.0},{"name":"Mac & Cheese Kid’s Meal","category":"Sides","calories":450,"fat_g":29.0,"sat_fat_g":16.0,"carbs_g":28.0,"fiber_g":3.0,"sugar_g":3.0,"protein_g":20.0},{"name":"Medium Chick-fil-A Waffle Potato Fries®","category":"Sides","calories":420,"fat_g":24.0,"sat_fat_g":4.0,"carbs_g":45.0,"fiber_g":5.0,"sugar_g":1.0,"protein_g":5.0},{"name":"Medium Fruit Cup","category":"Sides","calories":70,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":16.0,"fiber_g":2.0,"sugar_g":12.0,"protein_g":1.0},{"name":"Medium Mac & Cheese","category":"Sides","calories":450,"fat_g":29.0,"sat_fat_g":16.0,"carbs_g":28.0,"fiber_g":3.0,"sugar_g":3.0,"protein_g":20.0},{"name":"Original Flavor Waffle Potato Chips","category":"Sides","calories":220,"fat_g":13.0,"sat_fat_g":3.5,"carbs_g":25.0,"fiber_g":2.0,"sugar_g":0.0,"protein_g":3.0},{"name":"Side Salad","category":"Sides","calories":470,"fat_g":42.0,"sat_fat_g":8.0,"carbs_g":14.0,"fiber_g":4.0,"sugar_g":5.0,"protein_g":6.0},{"name":"Small Chick-fil-A Waffle Potato Fries®","category":"Sides","calories":320,"fat_g":19.0,"sat_fat_g":3.0,"carbs_g":35.0,"fiber_g":4.0,"sugar_g":1.0,"protein_g":4.0},{"name":"Small Fruit Cup","category":"Sides","calories":60,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":14.0,"fiber_g":2.0,"sugar_g":11.0,"protein_g":1.0},{"name":"Small Mac & Cheese","category":"Sides","calories":270,"fat_g":17.0,"sat_fat_g":10.0,"carbs_g":17.0,"fiber_g":2.0,"sugar_g":2.0,"protein_g":12.0},{"name":"6 pack Chocolate Chunk Cookie","category":"Treats","calories":370,"fat_g":17.0,"sat_fat_g":9.0,"carbs_g":49.0,"fiber_g":3.0,"sugar_g":26.0,"protein_g":5.0},{"name":"Caramel Frosted Coffee","category":"Treats","calories":370,"fat_g":10.0,"sat_fat_g":6.0,"carbs_g":63.0,"fiber_g":0.0,"sugar_g":60.0,"protein_g":7.0},{"name":"Chick-fil-A® Icedream® Cone","category":"Treats","calories":180,"fat_g":4.0,"sat_fat_g":2.5,"carbs_g":32.0,"fiber_g":0.0,"sugar_g":25.0,"protein_g":4.0},{"name":"Chick-fil-A® Icedream® Cup","category":"Treats","calories":140,"fat_g":3.5,"sat_fat_g":2.5,"carbs_g":24.0,"fiber_g":0.0,"sugar_g":24.0,"protein_g":4.0},{"name":"Chocolate Fudge Brownie","category":"Treats","calories":370,"fat_g":21.0,"sat_fat_g":8.0,"carbs_g":47.0,"fiber_g":2.0,"sugar_g":35.0,"protein_g":4.0},{"name":"Chocolate Milkshake","category":"Treats","calories":600,"fat_g":22.0,"sat_fat_g":14.0,"carbs_g":93.0,"fiber_g":1.0,"sugar_g":90.0,"protein_g":12.0},{"name":"Cookies & Cream Milkshake","category":"Treats","calories":630,"fat_g":25.0,"sat_fat_g":15.0,"carbs_g":91.0,"fiber_g":1.0,"sugar_g":84.0,"protein_g":13.0},{"name":"Dr Pepper® Float","category":"Treats","calories":320,"fat_g":7.0,"sat_fat_g":4.5,"carbs_g":60.0,"fiber_g":0.0,"sugar_g":59.0,"protein_g":7.0},{"name":"Frosted Barq’s® Red Flash","category":"Treats","calories":320,"fat_g":7.0,"sat_fat_g":4.5,"carbs_g":61.0,"fiber_g":0.0,"sugar_g":60.0,"protein_g":7.0},{"name":"Frosted Barq’s® Root Beer","category":"Treats","calories":320,"fat_g":7.0,"sat_fat_g":4.5,"carbs_g":61.0,"fiber_g":0.0,"sugar_g":60.0,"protein_g":7.0},{"name":"Frosted Caffeine Free Barq’s® Root Beer","category":"Treats","calories":320,"fat_g":7.0,"sat_fat_g":4.5,"carbs_g":62.0,"fiber_g":0.0,"sugar_g":61.0,"protein_g":7.0},{"name":"Frosted Caffeine Free Diet Coke®","category":"Treats","calories":260,"fat_g":7.0,"sat_fat_g":4.5,"carbs_g":45.0,"fiber_g":0.0,"sugar_g":44.0,"protein_g":7.0},{"name":"Frosted Coca-Cola® Cherry","category":"Treats","calories":320,"fat_g":7.0,"sat_fat_g":4.5,"carbs_g":61.0,"fiber_g":0.0,"sugar_g":60.0,"protein_g":7.0},{"name":"Frosted Coke®","category":"Treats","calories":320,"fat_g":7.0,"sat_fat_g":4.5,"carbs_g":60.0,"fiber_g":0.0,"sugar_g":60.0,"protein_g":7.0},{"name":"Frosted Coke® Zero Sugar","category":"Treats","calories":260,"fat_g":7.0,"sat_fat_g":4.5,"carbs_g":45.0,"fiber_g":0.0,"sugar_g":44.0,"protein_g":7.0},{"name":"Frosted Diet Coke®","category":"Treats","calories":260,"fat_g":7.0,"sat_fat_g":4.5,"carbs_g":45.0,"fiber_g":0.0,"sugar_g":44.0,"protein_g":7.0},{"name":"Frosted Diet Dr Pepper®","category":"Treats","calories":260,"fat_g":7.0,"sat_fat_g":4.5,"carbs_g":45.0,"fiber_g":0.0,"sugar_g":44.0,"protein_g":7.0},{"name":"Frosted Dr Pepper®","category":"Treats","calories":320,"fat_g":7.0,"sat_fat_g":4.5,"carbs_g":60.0,"fiber_g":0.0,"sugar_g":59.0,"protein_g":7.0},{"name":"Frosted Fanta® Orange","category":"Treats","calories":320,"fat_g":7.0,"sat_fat_g":4.5,"carbs_g":60.0,"fiber_g":0.0,"sugar_g":60.0,"protein_g":7.0},{"name":"Frosted Fanta® Strawberry","category":"Treats","calories":320,"fat_g":7.0,"sat_fat_g":4.5,"carbs_g":61.0,"fiber_g":0.0,"sugar_g":61.0,"protein_g":7.0},{"name":"Frosted Hi-C® Fruit Punch","category":"Treats","calories":320,"fat_g":7.0,"sat_fat_g":4.5,"carbs_g":61.0,"fiber_g":0.0,"sugar_g":60.0,"protein_g":7.0},{"name":"Frosted Hi-C® Orange","category":"Treats","calories":310,"fat_g":7.0,"sat_fat_g":4.5,"carbs_g":58.0,"fiber_g":0.0,"sugar_g":57.0,"protein_g":7.0},{"name":"Frosted Mello Yello®","category":"Treats","calories":320,"fat_g":7.0,"sat_fat_g":4.5,"carbs_g":62.0,"fiber_g":0.0,"sugar_g":61.0,"protein_g":7.0},{"name":"Frosted Powerade® Mountain Berry Blast","category":"Treats","calories":290,"fat_g":7.0,"sat_fat_g":4.5,"carbs_g":53.0,"fiber_g":0.0,"sugar_g":52.0,"protein_g":7.0},{"name":"Frosted Sodas","category":"Treats","calories":320,"fat_g":7.0,"sat_fat_g":4.5,"carbs_g":60.0,"fiber_g":0.0,"sugar_g":59.0,"protein_g":7.0},{"name":"Frosted Sprite®","category":"Treats","calories":320,"fat_g":7.0,"sat_fat_g":4.5,"carbs_g":59.0,"fiber_g":0.0,"sugar_g":59.0,"protein_g":7.0},{"name":"Mocha Frosted Coffee","category":"Treats","calories":330,"fat_g":7.0,"sat_fat_g":4.5,"carbs_g":61.0,"fiber_g":1.0,"sugar_g":59.0,"protein_g":7.0},{"name":"Pineapple Dragonfruit Frosted Lemonade","category":"Treats","calories":360,"fat_g":7.0,"sat_fat_g":4.5,"carbs_g":70.0,"fiber_g":0.0,"sugar_g":63.0,"protein_g":7.0},{"name":"Pineapple Dragonfruit Frosted Lemonade w/ Diet Lemonade","category":"Treats","calories":300,"fat_g":7.0,"sat_fat_g":4.5,"carbs_g":54.0,"fiber_g":0.0,"sugar_g":48.0,"protein_g":7.0},{"name":"Strawberry Milkshake","category":"Treats","calories":560,"fat_g":18.0,"sat_fat_g":11.0,"carbs_g":92.0,"fiber_g":1.0,"sugar_g":87.0,"protein_g":10.0},{"name":"S’mores Frosted Coffee","category":"Treats","calories":400,"fat_g":8.0,"sat_fat_g":5.0,"carbs_g":77.0,"fiber_g":1.0,"sugar_g":69.0,"protein_g":7.0},{"name":"S’mores Milkshake","category":"Treats","calories":650,"fat_g":19.0,"sat_fat_g":12.0,"carbs_g":109.0,"fiber_g":1.0,"sugar_g":100.0,"protein_g":12.0},{"name":"Vanilla Frosted Coffee","category":"Treats","calories":330,"fat_g":7.0,"sat_fat_g":4.5,"carbs_g":62.0,"fiber_g":0.0,"sugar_g":60.0,"protein_g":7.0},{"name":"Vanilla Milkshake","category":"Treats","calories":580,"fat_g":23.0,"sat_fat_g":15.0,"carbs_g":82.0,"fiber_g":1.0,"sugar_g":80.0,"protein_g":13.0},{"name":"1% Chocolate Milk","category":"Drinks","calories":140,"fat_g":2.0,"sat_fat_g":1.5,"carbs_g":23.0,"fiber_g":0.0,"sugar_g":21.0,"protein_g":7.0},{"name":"1% Milk","category":"Drinks","calories":90,"fat_g":2.0,"sat_fat_g":1.5,"carbs_g":10.0,"fiber_g":0.0,"sugar_g":10.0,"protein_g":7.0},{"name":"Bag of Ice","category":"Drinks","calories":0,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":0.0,"fiber_g":0.0,"sugar_g":0.0,"protein_g":0.0},{"name":"DASANI® Bottled Water","category":"Drinks","calories":0,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":0.0,"fiber_g":0.0,"sugar_g":0.0,"protein_g":0.0},{"name":"Gallon Chick-fil-A® Diet Lemonade","category":"Drinks","calories":40,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":12.0,"fiber_g":0.0,"sugar_g":8.0,"protein_g":0.0},{"name":"Gallon Chick-fil-A® Iced Tea (1/2 Sweet Tea, 1/2 Unsweet Tea)","category":"Drinks","calories":70,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":18.0,"fiber_g":0.0,"sugar_g":18.0,"protein_g":0.0},{"name":"Gallon Chick-fil-A® Lemonade","category":"Drinks","calories":190,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":49.0,"fiber_g":0.0,"sugar_g":45.0,"protein_g":0.0},{"name":"Gallon Chick-fil-A® Lemonade (1/2 Lemonade, 1/2 Diet Lemonade)","category":"Drinks","calories":120,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":33.0,"fiber_g":0.0,"sugar_g":30.0,"protein_g":0.0},{"name":"Gallon Freshly-Brewed Iced Tea Sweetened","category":"Drinks","calories":130,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":33.0,"fiber_g":0.0,"sugar_g":33.0,"protein_g":0.0},{"name":"Gallon Freshly-Brewed Iced Tea Unsweetened","category":"Drinks","calories":0,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":0.0,"fiber_g":0.0,"sugar_g":0.0,"protein_g":0.0},{"name":"Gallon Pineapple Dragonfruit Diet Lemonade","category":"Drinks","calories":70,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":16.0,"fiber_g":0.0,"sugar_g":8.0,"protein_g":0.0},{"name":"Gallon Pineapple Dragonfruit Lemonade","category":"Drinks","calories":210,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":53.0,"fiber_g":0.0,"sugar_g":44.0,"protein_g":0.0},{"name":"Gallon Pineapple Dragonfruit Sunjoy® (1/2 Sweet Tea, 1/2 Diet Lemonade)","category":"Drinks","calories":110,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":28.0,"fiber_g":0.0,"sugar_g":22.0,"protein_g":0.0},{"name":"Gallon Pineapple Dragonfruit Sunjoy® (1/2 Sweet Tea, 1/2 Lemonade)","category":"Drinks","calories":180,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":44.0,"fiber_g":0.0,"sugar_g":38.0,"protein_g":0.0},{"name":"Gallon Pineapple Dragonfruit Sunjoy® (1/2 Unsweet Tea, 1/2 Diet Lemonade)","category":"Drinks","calories":45,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":10.0,"fiber_g":0.0,"sugar_g":4.0,"protein_g":0.0},{"name":"Gallon Pineapple Dragonfruit Sunjoy® (1/2 Unsweet Tea, 1/2 Lemonade)","category":"Drinks","calories":110,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":27.0,"fiber_g":0.0,"sugar_g":20.0,"protein_g":0.0},{"name":"Gallon Pineapple Dragonfruit Sweet Tea","category":"Drinks","calories":150,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":37.0,"fiber_g":0.0,"sugar_g":33.0,"protein_g":0.0},{"name":"Gallon Pineapple Dragonfruit Unsweet Tea","category":"Drinks","calories":25,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":5.0,"fiber_g":0.0,"sugar_g":0.0,"protein_g":0.0},{"name":"Gallon Sunjoy® (1/2 Sweet Tea, 1/2 Diet Lemonade)","category":"Drinks","calories":90,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":23.0,"fiber_g":0.0,"sugar_g":21.0,"protein_g":0.0},{"name":"Gallon Sunjoy® (1/2 Sweet Tea, 1/2 Lemonade)","category":"Drinks","calories":160,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":41.0,"fiber_g":0.0,"sugar_g":39.0,"protein_g":0.0},{"name":"Gallon Sunjoy® (1/2 Unsweet Tea, 1/2 Diet Lemonade)","category":"Drinks","calories":20,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":6.0,"fiber_g":0.0,"sugar_g":4.0,"protein_g":0.0},{"name":"Gallon Sunjoy® (1/2 Unsweet Tea, 1/2 Lemonade)","category":"Drinks","calories":100,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":26.0,"fiber_g":0.0,"sugar_g":24.0,"protein_g":0.0},{"name":"Honest Kids® Apple Juice","category":"Drinks","calories":35,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":9.0,"fiber_g":0.0,"sugar_g":8.0,"protein_g":0.0},{"name":"Large Chick-fil-A® Diet Lemonade","category":"Drinks","calories":80,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":23.0,"fiber_g":0.0,"sugar_g":17.0,"protein_g":0.0},{"name":"Large Chick-fil-A® Lemonade","category":"Drinks","calories":380,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":98.0,"fiber_g":1.0,"sugar_g":90.0,"protein_g":1.0},{"name":"Large Coca-Cola®","category":"Drinks","calories":250,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":68.0,"fiber_g":0.0,"sugar_g":68.0,"protein_g":0.0},{"name":"Large Dr Pepper®","category":"Drinks","calories":250,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":64.0,"fiber_g":0.0,"sugar_g":64.0,"protein_g":0.0},{"name":"Large Freshly-Brewed Sweetened Iced Tea","category":"Drinks","calories":170,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":44.0,"fiber_g":0.0,"sugar_g":44.0,"protein_g":0.0},{"name":"Large Freshly-Brewed Unsweetened Iced Tea","category":"Drinks","calories":0,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":0.0,"fiber_g":0.0,"sugar_g":0.0,"protein_g":0.0},{"name":"Large Sunjoy® (1/2 Sweet Tea, 1/2 Diet Lemonade)","category":"Drinks","calories":150,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":40.0,"fiber_g":0.0,"sugar_g":36.0,"protein_g":0.0},{"name":"Large Sunjoy® (1/2 Sweet Tea, 1/2 Lemonade)","category":"Drinks","calories":350,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":91.0,"fiber_g":0.0,"sugar_g":85.0,"protein_g":0.0},{"name":"Large Sunjoy® (1/2 Unsweet Tea, 1/2 Diet Lemonade)","category":"Drinks","calories":60,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":15.0,"fiber_g":0.0,"sugar_g":11.0,"protein_g":0.0},{"name":"Large Sunjoy® (1/2 Unsweet Tea, 1/2 Lemonade)","category":"Drinks","calories":260,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":66.0,"fiber_g":0.0,"sugar_g":60.0,"protein_g":0.0},{"name":"Medium Chick-fil-A® Diet Lemonade","category":"Drinks","calories":60,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":15.0,"fiber_g":0.0,"sugar_g":11.0,"protein_g":0.0},{"name":"Medium Chick-fil-A® Lemonade","category":"Drinks","calories":260,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":66.0,"fiber_g":0.0,"sugar_g":60.0,"protein_g":0.0},{"name":"Medium Coca-Cola®","category":"Drinks","calories":170,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":46.0,"fiber_g":0.0,"sugar_g":46.0,"protein_g":0.0},{"name":"Medium Dr Pepper®","category":"Drinks","calories":170,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":44.0,"fiber_g":0.0,"sugar_g":44.0,"protein_g":0.0},{"name":"Medium Freshly-Brewed Sweetened Iced Tea","category":"Drinks","calories":120,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":31.0,"fiber_g":0.0,"sugar_g":30.0,"protein_g":0.0},{"name":"Medium Freshly-Brewed Unsweetened Iced Tea","category":"Drinks","calories":0,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":0.0,"fiber_g":0.0,"sugar_g":0.0,"protein_g":0.0},{"name":"Medium Sunjoy® (1/2 Sweet Tea, 1/2 Diet Lemonade)","category":"Drinks","calories":110,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":29.0,"fiber_g":0.0,"sugar_g":26.0,"protein_g":0.0},{"name":"Medium Sunjoy® (1/2 Sweet Tea, 1/2 Lemonade)","category":"Drinks","calories":240,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":60.0,"fiber_g":0.0,"sugar_g":57.0,"protein_g":0.0},{"name":"Medium Sunjoy® (1/2 Unsweet Tea, 1/2 Diet Lemonade)","category":"Drinks","calories":35,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":10.0,"fiber_g":0.0,"sugar_g":7.0,"protein_g":0.0},{"name":"Medium Sunjoy® (1/2 Unsweet Tea, 1/2 Lemonade)","category":"Drinks","calories":160,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":41.0,"fiber_g":0.0,"sugar_g":38.0,"protein_g":0.0},{"name":"Pineapple Dragonfruit & Sprite®","category":"Drinks","calories":190,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":50.0,"fiber_g":0.0,"sugar_g":43.0,"protein_g":0.0},{"name":"Pineapple Dragonfruit Sunjoy® (Sweet Tea, Diet Lemonade)","category":"Drinks","calories":140,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":34.0,"fiber_g":0.0,"sugar_g":25.0,"protein_g":0.0},{"name":"Pineapple Dragonfruit Sunjoy® (Sweet Tea, Lemonade)","category":"Drinks","calories":240,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":59.0,"fiber_g":0.0,"sugar_g":50.0,"protein_g":0.0},{"name":"Pineapple Dragonfruit Sunjoy® (Unsweet Tea, Diet Lemonade)","category":"Drinks","calories":60,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":14.0,"fiber_g":0.0,"sugar_g":6.0,"protein_g":0.0},{"name":"Pineapple Dragonfruit Sunjoy® (Unsweet Tea, Lemonade)","category":"Drinks","calories":160,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":39.0,"fiber_g":0.0,"sugar_g":30.0,"protein_g":0.0},{"name":"Seasonal Gallon Beverages","category":"Drinks","calories":210,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":53.0,"fiber_g":0.0,"sugar_g":44.0,"protein_g":0.0},{"name":"Simply Orange®","category":"Drinks","calories":160,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":34.0,"fiber_g":0.0,"sugar_g":30.0,"protein_g":2.0},{"name":"Small Chick-fil-A® Diet Lemonade","category":"Drinks","calories":40,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":12.0,"fiber_g":0.0,"sugar_g":8.0,"protein_g":0.0},{"name":"Small Chick-fil-A® Lemonade","category":"Drinks","calories":190,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":49.0,"fiber_g":0.0,"sugar_g":45.0,"protein_g":0.0},{"name":"Small Coca-Cola®","category":"Drinks","calories":130,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":35.0,"fiber_g":0.0,"sugar_g":35.0,"protein_g":0.0},{"name":"Small Dr Pepper®","category":"Drinks","calories":130,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":34.0,"fiber_g":0.0,"sugar_g":34.0,"protein_g":0.0},{"name":"Small Freshly-Brewed Sweetened Iced Tea","category":"Drinks","calories":90,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":22.0,"fiber_g":0.0,"sugar_g":22.0,"protein_g":0.0},{"name":"Small Freshly-Brewed Unsweetened Iced Tea","category":"Drinks","calories":0,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":0.0,"fiber_g":0.0,"sugar_g":0.0,"protein_g":0.0},{"name":"Small Sunjoy® (1/2 Sweet Tea, 1/2 Diet Lemonade)","category":"Drinks","calories":80,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":20.0,"fiber_g":0.0,"sugar_g":18.0,"protein_g":0.0},{"name":"Small Sunjoy® (1/2 Sweet Tea, 1/2 Lemonade)","category":"Drinks","calories":180,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":45.0,"fiber_g":0.0,"sugar_g":43.0,"protein_g":0.0},{"name":"Small Sunjoy® (1/2 Unsweet Tea, 1/2 Diet Lemonade)","category":"Drinks","calories":30,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":8.0,"fiber_g":0.0,"sugar_g":6.0,"protein_g":0.0},{"name":"Small Sunjoy® (1/2 Unsweet Tea, 1/2 Lemonade)","category":"Drinks","calories":130,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":33.0,"fiber_g":0.0,"sugar_g":30.0,"protein_g":0.0},{"name":"Toasted Marshmallow Cream Cold Brew","category":"Drinks","calories":530,"fat_g":17.0,"sat_fat_g":10.0,"carbs_g":87.0,"fiber_g":0.0,"sugar_g":80.0,"protein_g":8.0},{"name":"Toasted Marshmallow Hot Coffee","category":"Drinks","calories":110,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":26.0,"fiber_g":0.0,"sugar_g":22.0,"protein_g":0.0},{"name":"Toasted Marshmallow Iced Coffee","category":"Drinks","calories":270,"fat_g":4.0,"sat_fat_g":3.0,"carbs_g":50.0,"fiber_g":0.0,"sugar_g":43.0,"protein_g":7.0},{"name":"Caramel Cream Cold Brew","category":"Coffee","calories":520,"fat_g":22.0,"sat_fat_g":14.0,"carbs_g":75.0,"fiber_g":0.0,"sugar_g":71.0,"protein_g":9.0},{"name":"Caramel Frosted Coffee","category":"Coffee","calories":370,"fat_g":10.0,"sat_fat_g":6.0,"carbs_g":63.0,"fiber_g":0.0,"sugar_g":60.0,"protein_g":7.0},{"name":"Caramel Iced Coffee","category":"Coffee","calories":260,"fat_g":9.0,"sat_fat_g":6.0,"carbs_g":38.0,"fiber_g":0.0,"sugar_g":34.0,"protein_g":8.0},{"name":"Mocha Cream Cold Brew","category":"Coffee","calories":460,"fat_g":17.0,"sat_fat_g":11.0,"carbs_g":71.0,"fiber_g":1.0,"sugar_g":68.0,"protein_g":9.0},{"name":"Mocha Frosted Coffee","category":"Coffee","calories":330,"fat_g":7.0,"sat_fat_g":4.5,"carbs_g":61.0,"fiber_g":1.0,"sugar_g":59.0,"protein_g":7.0},{"name":"Mocha Iced Coffee","category":"Coffee","calories":200,"fat_g":4.5,"sat_fat_g":3.0,"carbs_g":34.0,"fiber_g":1.0,"sugar_g":31.0,"protein_g":8.0},{"name":"S’mores Frosted Coffee","category":"Coffee","calories":400,"fat_g":8.0,"sat_fat_g":5.0,"carbs_g":77.0,"fiber_g":1.0,"sugar_g":69.0,"protein_g":7.0},{"name":"Toasted Marshmallow Cream Cold Brew","category":"Coffee","calories":530,"fat_g":17.0,"sat_fat_g":10.0,"carbs_g":87.0,"fiber_g":0.0,"sugar_g":80.0,"protein_g":8.0},{"name":"Toasted Marshmallow Hot Coffee","category":"Coffee","calories":110,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":26.0,"fiber_g":0.0,"sugar_g":22.0,"protein_g":0.0},{"name":"Toasted Marshmallow Iced Coffee","category":"Coffee","calories":270,"fat_g":4.0,"sat_fat_g":3.0,"carbs_g":50.0,"fiber_g":0.0,"sugar_g":43.0,"protein_g":7.0},{"name":"Vanilla Cream Cold Brew","category":"Coffee","calories":470,"fat_g":17.0,"sat_fat_g":10.0,"carbs_g":72.0,"fiber_g":0.0,"sugar_g":69.0,"protein_g":8.0},{"name":"Vanilla Frosted Coffee","category":"Coffee","calories":330,"fat_g":7.0,"sat_fat_g":4.5,"carbs_g":62.0,"fiber_g":0.0,"sugar_g":60.0,"protein_g":7.0},{"name":"Vanilla Iced Coffee","category":"Coffee","calories":210,"fat_g":4.0,"sat_fat_g":3.0,"carbs_g":35.0,"fiber_g":0.0,"sugar_g":33.0,"protein_g":7.0},{"name":"Barbeque Sauce","category":"Dipping Sauces","calories":45,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":11.0,"fiber_g":0.0,"sugar_g":9.0,"protein_g":0.0},{"name":"Chick-fil-A® Sauce","category":"Dipping Sauces","calories":140,"fat_g":13.0,"sat_fat_g":2.0,"carbs_g":6.0,"fiber_g":0.0,"sugar_g":6.0,"protein_g":0.0},{"name":"Classic Syrup","category":"Dipping Sauces","calories":60,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":16.0,"fiber_g":0.0,"sugar_g":12.0,"protein_g":0.0},{"name":"Garden Herb Ranch Sauce","category":"Dipping Sauces","calories":100,"fat_g":11.0,"sat_fat_g":2.0,"carbs_g":1.0,"fiber_g":0.0,"sugar_g":0.0,"protein_g":0.0},{"name":"Honey Mustard Sauce","category":"Dipping Sauces","calories":50,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":11.0,"fiber_g":0.0,"sugar_g":10.0,"protein_g":0.0},{"name":"Honey Roasted BBQ Sauce","category":"Dipping Sauces","calories":60,"fat_g":5.0,"sat_fat_g":1.0,"carbs_g":3.0,"fiber_g":0.0,"sugar_g":2.0,"protein_g":0.0},{"name":"Polynesian Sauce","category":"Dipping Sauces","calories":110,"fat_g":6.0,"sat_fat_g":1.0,"carbs_g":14.0,"fiber_g":0.0,"sugar_g":13.0,"protein_g":0.0},{"name":"Sweet & Spicy Sriracha Sauce","category":"Dipping Sauces","calories":45,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":11.0,"fiber_g":0.0,"sugar_g":10.0,"protein_g":0.0},{"name":"Zesty Buffalo Sauce","category":"Dipping Sauces","calories":25,"fat_g":2.5,"sat_fat_g":0.0,"carbs_g":1.0,"fiber_g":0.0,"sugar_g":0.0,"protein_g":0.0},{"name":"Avocado Lime Ranch Dressing","category":"Dressings","calories":310,"fat_g":32.0,"sat_fat_g":5.0,"carbs_g":3.0,"fiber_g":1.0,"sugar_g":2.0,"protein_g":1.0},{"name":"Creamy Salsa Dressing","category":"Dressings","calories":290,"fat_g":31.0,"sat_fat_g":5.0,"carbs_g":2.0,"fiber_g":0.0,"sugar_g":1.0,"protein_g":1.0},{"name":"Fat-Free Honey Mustard Dressing","category":"Dressings","calories":90,"fat_g":0.0,"sat_fat_g":0.0,"carbs_g":22.0,"fiber_g":1.0,"sugar_g":18.0,"protein_g":0.0},{"name":"Garden Herb Ranch Dressing","category":"Dressings","calories":280,"fat_g":29.0,"sat_fat_g":5.0,"carbs_g":2.0,"fiber_g":0.0,"sugar_g":1.0,"protein_g":1.0},{"name":"Light Balsamic Vinaigrette Dressing","category":"Dressings","calories":80,"fat_g":4.0,"sat_fat_g":0.5,"carbs_g":10.0,"fiber_g":0.0,"sugar_g":9.0,"protein_g":0.0},{"name":"Light Italian Dressing","category":"Dressings","calories":25,"fat_g":1.0,"sat_fat_g":0.0,"carbs_g":3.0,"fiber_g":0.0,"sugar_g":2.0,"protein_g":0.0},{"name":"Zesty Apple Cider Vinaigrette Dressing","category":"Dressings","calories":230,"fat_g":19.0,"sat_fat_g":3.0,"carbs_g":16.0,"fiber_g":0.0,"sugar_g":14.0,"protein_g":0.0}];
+
+const RESTAURANTS = [
+  { id: 'cfa', name: 'Chick-fil-A', items: BUILT_IN_CFA }
+];
+
+const CAT_ORDER = ['Breakfast','Entrées','Salads','Sides','Treats','Drinks','Coffee','Dipping Sauces','Dressings'];
+
+// ===== STATE =====
+let activeR    = null;
+let activeCat  = null;
+let currentItems = []; // items visible in current tab
+let builder    = [];   // [{...item, _uid}]
+let msgTimer   = null;
+let currentSort = 'default';
+
+// ===== INIT =====
+function init() {
+  loadCached();
+  renderRestaurantLists();
+  activateRestaurant(RESTAURANTS[0], true);
+  bindRefresh();
+  bindBuilderToggle();
+  initSuggest();
+}
+
+function loadCached() {
+  try {
+    const raw = localStorage.getItem('nsf_menu_cfa');
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (Array.isArray(data.items) && data.items.length > 10) {
+      RESTAURANTS[0].items = data.items;
+      const d = new Date(data.refreshed);
+      setText('refresh-status', 'Refreshed ' + d.toLocaleDateString());
+    }
+  } catch (e) {}
+}
+
+// ===== RESTAURANT LISTS =====
+function renderRestaurantLists() {
+  const rList = qs('#r-list');
+  const mPills = qs('#mobile-pills');
+  RESTAURANTS.forEach(r => {
+    const btn = el('button', { className: 'r-btn', 'data-id': r.id }, r.name);
+    btn.addEventListener('click', () => activateRestaurant(r));
+    rList.appendChild(btn);
+
+    const pill = el('button', { className: 'mpill', 'data-id': r.id }, r.name);
+    pill.addEventListener('click', () => activateRestaurant(r));
+    mPills.appendChild(pill);
+  });
+}
+
+// ===== ACTIVATE RESTAURANT =====
+function activateRestaurant(r, silent) {
+  const switching = activeR && activeR !== r;
+  activeR = r;
+
+  // Highlight active in sidebar and pills
+  qsa('.r-btn').forEach(b => b.classList.toggle('active', b.dataset.id === r.id));
+  qsa('.mpill').forEach(b => b.classList.toggle('active', b.dataset.id === r.id));
+  setText('active-r-name', r.name);
+
+  // Clear builder
+  builder = [];
+  updateBuilderUI();
+
+  // Render tabs and show All tab first
+  const cats = getRestaurantCats(r);
+  renderTabs(cats);
+  renderSortBar();
+  showCategory('__all__');
+
+  if (!silent && switching) {
+    showMsg('Switching to ' + r.name + ' — builder cleared');
+  }
+}
+
+function getRestaurantCats(r) {
+  const present = new Set(r.items.map(i => i.category));
+  return CAT_ORDER.filter(c => present.has(c));
+}
+
+// ===== TABS =====
+function renderTabs(cats) {
+  const tabs = qs('#tabs');
+  tabs.innerHTML = '';
+  const allBtn = el('button', { className: 'tab-btn', 'data-cat': '__all__' }, 'All');
+  allBtn.addEventListener('click', () => showCategory('__all__'));
+  tabs.appendChild(allBtn);
+  cats.forEach(cat => {
+    const btn = el('button', { className: 'tab-btn', 'data-cat': cat }, cat);
+    btn.addEventListener('click', () => showCategory(cat));
+    tabs.appendChild(btn);
+  });
+}
+
+function showCategory(cat) {
+  activeCat = cat;
+  qsa('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+  currentItems = cat === '__all__' ? activeR.items.slice() : activeR.items.filter(i => i.category === cat);
+  const hpBadges = highProteinBadges(currentItems);
+  const hfBadges = highFiberBadges(currentItems);
+  renderItems(applySort(currentItems, currentSort), hpBadges, hfBadges, cat === '__all__');
+}
+
+// ===== SORT =====
+function applySort(items, sort) {
+  const copy = items.slice();
+  const ratio = (n, cal) => cal > 0 ? n / cal : -1;
+  if (sort === 'value')    return copy.sort((a, b) => ratio(a.protein_g + a.fiber_g, a.calories) - ratio(b.protein_g + b.fiber_g, b.calories)).reverse();
+  if (sort === 'protein')  return copy.sort((a, b) => ratio(a.protein_g, a.calories) - ratio(b.protein_g, b.calories)).reverse();
+  if (sort === 'fiber')    return copy.sort((a, b) => ratio(a.fiber_g, a.calories) - ratio(b.fiber_g, b.calories)).reverse();
+  if (sort === 'cal-asc')  return copy.sort((a, b) => a.calories - b.calories);
+  if (sort === 'cal-desc') return copy.sort((a, b) => b.calories - a.calories);
+  return copy;
+}
+
+function renderSortBar() {
+  const bar = qs('#sort-bar');
+  bar.innerHTML = '';
+  const sorts = [
+    { key: 'default',  label: 'Default' },
+    { key: 'value',    label: 'Best Value' },
+    { key: 'protein',  label: 'Best Protein/Cal' },
+    { key: 'fiber',    label: 'Best Fiber/Cal' },
+    { key: 'cal-asc',  label: 'Lowest Cal' },
+    { key: 'cal-desc', label: 'Highest Cal' },
+  ];
+  sorts.forEach(s => {
+    const btn = el('button', { className: 'sort-pill' + (currentSort === s.key ? ' active' : ''), 'data-sort': s.key }, s.label);
+    btn.addEventListener('click', () => {
+      currentSort = s.key;
+      qsa('.sort-pill').forEach(p => p.classList.toggle('active', p.dataset.sort === s.key));
+      const items = activeCat === '__all__' ? activeR.items.slice() : activeR.items.filter(i => i.category === activeCat);
+      const hpBadges = highProteinBadges(items);
+      const hfBadges = highFiberBadges(items);
+      renderItems(applySort(items, currentSort), hpBadges, hfBadges, activeCat === '__all__');
+    });
+    bar.appendChild(btn);
+  });
+}
+
+// ===== HIGH PROTEIN BADGES =====
+function highProteinBadges(items) {
+  const scored = items
+    .filter(i => i.calories > 0 && i.protein_g > 0)
+    .map(i => ({ name: i.name, ratio: i.protein_g / i.calories }))
+    .sort((a, b) => b.ratio - a.ratio);
+  return new Set(scored.slice(0, 3).map(x => x.name));
+}
+
+// ===== HIGH FIBER BADGES =====
+function highFiberBadges(items) {
+  const scored = items
+    .filter(i => i.calories > 0 && i.fiber_g > 0)
+    .map(i => ({ name: i.name, ratio: i.fiber_g / i.calories }))
+    .sort((a, b) => b.ratio - a.ratio);
+  return new Set(scored.slice(0, 3).map(x => x.name));
+}
+
+// ===== ITEM LIST =====
+function renderItems(items, hpBadges, hfBadges, showCat) {
+  const wrap = qs('#items-wrap');
+  wrap.innerHTML = '';
+  if (!items.length) {
+    wrap.appendChild(el('p', { style: 'padding:24px 0;color:var(--gray-500);font-style:italic' }, 'No items here.'));
+    return;
+  }
+  items.forEach((item) => {
+    const row = document.createElement('div');
+    row.className = 'item-row';
+
+    const main = document.createElement('div');
+    main.className = 'item-main';
+
+    const nameRow = document.createElement('div');
+    nameRow.className = 'item-name-row';
+    const nameEl = el('span', { className: 'item-name' }, item.name);
+    nameRow.appendChild(nameEl);
+    if (hpBadges.has(item.name)) {
+      nameRow.appendChild(el('span', { className: 'hp-badge' }, 'High Protein'));
+    }
+    if (hfBadges.has(item.name)) {
+      nameRow.appendChild(el('span', { className: 'hf-badge' }, 'High Fiber'));
+    }
+    main.appendChild(nameRow);
+
+    const stats = document.createElement('div');
+    stats.className = 'item-stats';
+    stats.appendChild(el('span', { className: 'stat-cal' }, item.calories + ' cal'));
+    stats.appendChild(el('span', { className: 'stat-pro' }, item.protein_g + 'g protein'));
+    stats.appendChild(el('span', { className: 'stat' }, item.fiber_g + 'g fiber'));
+    if (showCat) {
+      stats.appendChild(el('span', { className: 'stat-cat' }, item.category));
+    }
+    main.appendChild(stats);
+
+    const addBtn = el('button', { className: 'add-btn' }, 'Add');
+    addBtn.addEventListener('click', () => addToBuilder(item));
+
+    row.appendChild(main);
+    row.appendChild(addBtn);
+    wrap.appendChild(row);
+  });
+}
+
+// ===== BUILDER =====
+function addToBuilder(item) {
+  builder.push({ ...item, _uid: Date.now() + Math.random() });
+  updateBuilderUI();
+}
+
+function removeFromBuilder(uid) {
+  builder = builder.filter(i => i._uid !== uid);
+  updateBuilderUI();
+}
+
+function clearBuilder() {
+  builder = [];
+  updateBuilderUI();
+}
+
+function updateBuilderUI() {
+  const totalCal = builder.reduce((s, i) => s + (i.calories || 0), 0);
+  const totalPro = builder.reduce((s, i) => s + (i.protein_g || 0), 0);
+  const totalFib = builder.reduce((s, i) => s + (i.fiber_g || 0), 0);
+
+  setText('t-cal', totalCal);
+  setText('t-pro', round1(totalPro) + 'g');
+  setText('t-fib', round1(totalFib) + 'g');
+
+  const bldItems = qs('#bld-items');
+  bldItems.innerHTML = '';
+
+  if (!builder.length) {
+    bldItems.appendChild(el('p', { className: 'bld-empty' }, 'Add items from the menu'));
+    return;
+  }
+
+  builder.forEach(item => {
+    const bi = document.createElement('div');
+    bi.className = 'bi';
+
+    const info = document.createElement('div');
+    info.className = 'bi-info';
+    info.appendChild(el('span', { className: 'bi-name' }, item.name));
+
+    const chips = document.createElement('div');
+    chips.className = 'bi-chips';
+    chips.appendChild(el('span', { className: 'bi-chip-cal' }, item.calories + ' cal'));
+    chips.appendChild(el('span', { className: 'bi-chip-pro' }, item.protein_g + 'g pro'));
+    chips.appendChild(el('span', { className: 'bi-chip' }, item.fiber_g + 'g fib'));
+    info.appendChild(chips);
+
+    const rmBtn = el('button', { className: 'rm-btn', title: 'Remove' }, '×');
+    rmBtn.addEventListener('click', () => removeFromBuilder(item._uid));
+
+    bi.appendChild(info);
+    bi.appendChild(rmBtn);
+    bldItems.appendChild(bi);
+  });
+
+  // On mobile, expand builder if it's collapsed
+  if (window.innerWidth < 768) {
+    const inner = qs('#bld-inner');
+    if (!inner.style.maxHeight || inner.style.maxHeight === '0px') {
+      expandBuilder();
+    }
+  }
+}
+
+// ===== MOBILE BUILDER TOGGLE =====
+let builderExpanded = false;
+
+function expandBuilder() {
+  const inner = qs('#bld-inner');
+  const icon = qs('#bld-toggle-icon');
+  const label = qs('#bld-toggle-label');
+  builderExpanded = true;
+  inner.style.maxHeight = inner.scrollHeight + 800 + 'px';
+  icon.textContent = '▼';
+  label.textContent = "Today's meal (hide)";
+}
+
+function collapseBuilder() {
+  const inner = qs('#bld-inner');
+  const icon = qs('#bld-toggle-icon');
+  const label = qs('#bld-toggle-label');
+  builderExpanded = false;
+  inner.style.maxHeight = '0';
+  icon.textContent = '▲';
+  label.textContent = "Today's meal";
+}
+
+function bindBuilderToggle() {
+  const toggle = qs('#bld-toggle');
+  if (!toggle) return;
+  toggle.addEventListener('click', () => {
+    if (builderExpanded) collapseBuilder();
+    else expandBuilder();
+  });
+}
+
+qs('#clear-btn').addEventListener('click', clearBuilder);
+
+// ===== REFRESH =====
+function bindRefresh() {
+  qs('#refresh-btn').addEventListener('click', doRefresh);
+}
+
+async function doRefresh() {
+  const btn = qs('#refresh-btn');
+  const status = qs('#refresh-status');
+  btn.disabled = true;
+  btn.textContent = 'Refreshing…';
+  status.textContent = 'Fetching…';
+
+  try {
+    // Try direct fetch first — will likely hit CORS and fall through
+    let items = null;
+    try {
+      const resp = await Promise.race([
+        fetch('https://www.chick-fil-a.com/nutrition-allergens'),
+        new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 6000))
+      ]);
+      const html = await resp.text();
+      if (html.includes('data-wp-each-child')) {
+        // Data is present in raw HTML — parse it
+        items = parseNutritionHtml(html);
+      }
+    } catch (e) {
+      // CORS or timeout — fall through to serverless
+    }
+
+    if (!items || items.length < 10) {
+      // Serverless fallback
+      const resp = await fetch('/api/refresh-menu');
+      if (!resp.ok) throw new Error('API error ' + resp.status);
+      const data = await resp.json();
+      items = data.items;
+    }
+
+    if (!items || items.length < 10) throw new Error('No usable data returned');
+
+    const payload = { items, refreshed: new Date().toISOString() };
+    localStorage.setItem('nsf_menu_cfa', JSON.stringify(payload));
+    RESTAURANTS[0].items = items;
+
+    const d = new Date(payload.refreshed);
+    status.textContent = 'Refreshed ' + d.toLocaleDateString();
+    activateRestaurant(activeR, true);
+    showMsg('Menu data refreshed');
+  } catch (e) {
+    status.textContent = 'Refresh failed';
+    console.error('Refresh error:', e);
+    alert('Refresh failed. Using stored data. Check the console for details.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Refresh';
+  }
+}
+
+// Parse pre-rendered HTML from CFA nutrition page
+function parseNutritionHtml(html) {
+  const VALID = new Set(['Breakfast','Entrées','Salads','Sides','Treats','Drinks','Coffee','Dipping Sauces','Dressings']);
+  const CAT_RX = [
+    ['Breakfast', 'Breakfast'], ['Entrées', 'Entr'], ['Salads', 'Salads'],
+    ['Sides', 'Sides'], ['Treats', 'Treats'], ['Drinks', 'Drinks'],
+    ['Coffee', 'Coffee'], ['Dipping Sauces', 'Dipping Sauces'], ['Dressings', 'Dressings']
+  ];
+
+  // Build category positions (search after nav area ~pos 8000)
+  const catPos = [];
+  for (const [cat, search] of CAT_RX) {
+    const needle = 'id="' + search + '"';
+    let idx = html.indexOf(needle, 8000);
+    if (idx >= 0) catPos.push({ cat, pos: idx });
+  }
+  catPos.sort((a, b) => a.pos - b.pos);
+
+  function getCategory(pos) {
+    let cat = null;
+    for (const cp of catPos) {
+      if (pos >= cp.pos) cat = cp.cat;
+      else break;
+    }
+    return cat && VALID.has(cat) ? cat : null;
+  }
+
+  function toNum(v) {
+    return parseFloat((v || '').replace(/[^\d.]/g, '')) || 0;
+  }
+
+  const items = [];
+  // Match each-child td blocks with nutrition values
+  const tdRx = /data-wp-each-child="[^"]*::context\.(menu_item|sub_item)\.fields"[\s\S]*?class="sr-only"[^>]*>([^<]+)<\/span>[\s\S]*?inert[^>]*>\s*([^<]*)\s*<\/span>/g;
+
+  // Group consecutive matches into sets of 11
+  const allMatches = [];
+  let m;
+  while ((m = tdRx.exec(html)) !== null) {
+    allMatches.push({ type: m[1], label: m[2], value: m[3].trim(), pos: m.index });
+  }
+
+  for (let i = 0; i < allMatches.length - 10; i++) {
+    // Check if next 11 are consecutive (same item)
+    const group = allMatches.slice(i, i + 11);
+    if (group[0].type !== group[10].type) continue;
+    if (!group[1].label.includes('Calorie')) continue;
+
+    const pos = group[0].pos;
+    const cat = getCategory(pos);
+    if (!cat) { i += 10; continue; }
+
+    // Find item name
+    let name = null;
+    const lookback = html.slice(Math.max(0, pos - 2000), pos);
+    if (group[0].type === 'menu_item') {
+      const am = [...lookback.matchAll(/<a\s+href="https:\/\/www\.chick-fil-a\.com\/[^"]*"[^>]*>([^<]+)<\/a>/g)];
+      if (am.length) name = am[am.length - 1][1].trim();
+    } else {
+      const tm = [...lookback.matchAll(/<td\s+data-wp-text="context\.sub_item\.title"\s+tabindex="0">\s*([^<]+)\s*<\/td>/g)];
+      if (tm.length) name = tm[tm.length - 1][1].trim();
+    }
+
+    if (!name) { i += 10; continue; }
+
+    items.push({
+      name: name.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#8211;/g, '–').replace(/®/g, '®'),
+      category: cat,
+      calories: toNum(group[1].value),
+      fat_g: toNum(group[2].value),
+      sat_fat_g: toNum(group[3].value),
+      carbs_g: toNum(group[7].value),
+      fiber_g: toNum(group[8].value),
+      sugar_g: toNum(group[9].value),
+      protein_g: toNum(group[10].value),
+    });
+    i += 10; // skip to next group
+  }
+
+  // Deduplicate
+  const seen = new Set();
+  return items.filter(item => {
+    const key = item.name + '|' + item.category + '|' + item.calories;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+// ===== HELPERS =====
+function qs(sel) { return document.querySelector(sel); }
+function qsa(sel) { return document.querySelectorAll(sel); }
+function setText(id, txt) { const e = document.getElementById(id); if (e) e.textContent = txt; }
+function round1(v) { return Math.round(v * 10) / 10; }
+
+function el(tag, attrs, text) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === 'className') e.className = v;
+    else if (k === 'style') e.setAttribute('style', v);
+    else if (k.startsWith('data-')) e.setAttribute(k, v);
+    else e[k] = v;
+  }
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+
+function showMsg(msg) {
+  const el = qs('#switch-msg');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(msgTimer);
+  msgTimer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ===== AI SUGGEST FEATURE =====
+const SLOT_CATS = {
+  entree: ['Entrées', 'Salads'],
+  side:   ['Sides'],
+  drink:  ['Drinks', 'Coffee'],
+};
+
+let suggestions = [];
+
+function initSuggest() {
+  qs('#suggest-btn').addEventListener('click', () => {
+    openSuggestPanel();
+    runSuggest();
+  });
+  qs('#suggest-close').addEventListener('click', closeSuggestPanel);
+}
+
+function openSuggestPanel() {
+  qs('#suggest-panel').classList.add('open');
+}
+
+function closeSuggestPanel() {
+  qs('#suggest-panel').classList.remove('open');
+}
+
+async function runSuggest() {
+  showSuggestSpinner();
+  const filtered = filterMenuForAI();
+
+  try {
+    const resp = await fetch('/api/suggest-meal', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ menuItems: filtered }),
+    });
+    if (!resp.ok) throw new Error('API ' + resp.status);
+    const data = await resp.json();
+    if (!Array.isArray(data.combos) || !data.combos.length) throw new Error('Empty combos');
+    suggestions = data.combos;
+    renderComboCards();
+  } catch (e) {
+    console.error('suggest-meal error:', e);
+    showSuggestError();
+  }
+}
+
+function filterMenuForAI() {
+  const now = new Date();
+  const hrs = now.getHours() + now.getMinutes() / 60;
+  const INCLUDE = new Set(['Entrées', 'Salads', 'Sides', 'Drinks', 'Coffee']);
+  if (hrs < 10.5) INCLUDE.add('Breakfast');
+
+  const items = activeR ? activeR.items : BUILT_IN_CFA;
+  return items
+    .filter(i => INCLUDE.has(i.category))
+    .map(i => ({ name: i.name, calories: i.calories, protein_g: i.protein_g, fiber_g: i.fiber_g }));
+}
+
+function showSuggestSpinner() {
+  const body = qs('#suggest-body');
+  body.innerHTML = '';
+  const wrap = document.createElement('div');
+  wrap.className = 'suggest-spinner';
+  const ring = document.createElement('div');
+  ring.className = 'spinner-ring';
+  wrap.appendChild(ring);
+  wrap.appendChild(el('span', {}, 'Finding your best options…'));
+  body.appendChild(wrap);
+}
+
+function showSuggestError() {
+  const body = qs('#suggest-body');
+  body.innerHTML = '';
+  body.appendChild(el('p', { className: 'suggest-error' }, "Couldn’t generate suggestions, try again"));
+}
+
+function renderComboCards() {
+  const body = qs('#suggest-body');
+  body.innerHTML = '';
+  const row = document.createElement('div');
+  row.className = 'suggest-cards';
+  suggestions.forEach((combo, idx) => row.appendChild(buildComboCard(combo, idx)));
+  body.appendChild(row);
+}
+
+function buildComboCard(combo, idx) {
+  const card = document.createElement('div');
+  card.className = 'combo-card';
+  card.dataset.idx = idx;
+
+  card.appendChild(el('div', { className: 'combo-title' }, combo.title));
+  card.appendChild(el('div', { className: 'combo-reason' }, combo.reason));
+
+  const slots = document.createElement('div');
+  slots.className = 'combo-slots';
+  ['entree', 'side', 'drink'].forEach(slot => {
+    if (combo[slot]) slots.appendChild(buildSlotBlock(combo, idx, slot));
+  });
+  card.appendChild(slots);
+
+  card.appendChild(buildComboTotals(combo));
+
+  const addBtn = el('button', { className: 'combo-add-btn' }, 'Add all to builder');
+  addBtn.addEventListener('click', () => {
+    ['entree', 'side', 'drink'].forEach(slot => {
+      if (combo[slot]) addToBuilder(combo[slot]);
+    });
+  });
+  card.appendChild(addBtn);
+
+  return card;
+}
+
+function buildSlotBlock(combo, idx, slot) {
+  const block = document.createElement('div');
+  block.dataset.slot = slot;
+
+  const labelMap = { entree: 'Entree', side: 'Side', drink: 'Drink' };
+  block.appendChild(el('div', { className: 'slot-label' }, labelMap[slot]));
+
+  const row = document.createElement('div');
+  row.className = 'slot-row';
+
+  const item = combo[slot];
+  const info = document.createElement('div');
+  info.className = 'slot-info';
+  info.appendChild(el('span', { className: 'slot-name' }, item.name));
+
+  const chips = document.createElement('div');
+  chips.className = 'slot-chips';
+  chips.appendChild(el('span', { className: 'bi-chip-cal' }, item.calories + ' cal'));
+  chips.appendChild(el('span', { className: 'bi-chip-pro' }, item.protein_g + 'g pro'));
+  chips.appendChild(el('span', { className: 'bi-chip' }, item.fiber_g + 'g fib'));
+  info.appendChild(chips);
+
+  const swapBtn = el('button', { className: 'swap-btn' }, 'Swap');
+  swapBtn.addEventListener('click', () => {
+    const existing = block.querySelector('.swap-list');
+    if (existing) {
+      existing.remove();
+      swapBtn.classList.remove('active');
+      return;
+    }
+    const alts = getSwapAlts(slot, item.name);
+    if (!alts.length) return;
+    swapBtn.classList.add('active');
+    block.appendChild(buildSwapList(alts, idx, slot));
+  });
+
+  row.appendChild(info);
+  row.appendChild(swapBtn);
+  block.appendChild(row);
+  return block;
+}
+
+function buildSwapList(alts, idx, slot) {
+  const list = document.createElement('div');
+  list.className = 'swap-list';
+
+  alts.forEach(alt => {
+    const opt = document.createElement('div');
+    opt.className = 'swap-option';
+
+    const nameEl = el('span', { className: 'swap-opt-name' }, alt.name);
+    const chips = document.createElement('div');
+    chips.className = 'swap-opt-chips';
+    chips.appendChild(el('span', { className: 'bi-chip-cal' }, alt.calories + ' cal'));
+    chips.appendChild(el('span', { className: 'bi-chip-pro' }, alt.protein_g + 'g pro'));
+    chips.appendChild(el('span', { className: 'bi-chip' }, alt.fiber_g + 'g fib'));
+
+    opt.appendChild(nameEl);
+    opt.appendChild(chips);
+
+    opt.addEventListener('click', () => {
+      suggestions[idx][slot] = { name: alt.name, calories: alt.calories, protein_g: alt.protein_g, fiber_g: alt.fiber_g };
+      const oldCard = qs('.combo-card[data-idx="' + idx + '"]');
+      const newCard = buildComboCard(suggestions[idx], idx);
+      oldCard.parentNode.replaceChild(newCard, oldCard);
+    });
+
+    list.appendChild(opt);
+  });
+
+  return list;
+}
+
+function buildComboTotals(combo) {
+  const wrap = document.createElement('div');
+  wrap.className = 'combo-totals';
+
+  const activeSlots = ['entree', 'side', 'drink'].filter(s => combo[s]);
+  const totalCal = activeSlots.reduce((s, k) => s + (combo[k].calories || 0), 0);
+  const totalPro = activeSlots.reduce((s, k) => s + (combo[k].protein_g || 0), 0);
+  const totalFib = activeSlots.reduce((s, k) => s + (combo[k].fiber_g || 0), 0);
+
+  [
+    { val: totalCal + ' cal', label: 'Calories' },
+    { val: round1(totalPro) + 'g',  label: 'Protein'  },
+    { val: round1(totalFib) + 'g',  label: 'Fiber'    },
+  ].forEach(({ val, label }) => {
+    const item = document.createElement('div');
+    item.className = 'combo-total-item';
+    item.appendChild(el('span', { className: 'combo-total-val' }, val));
+    item.appendChild(el('span', { className: 'combo-total-label' }, label));
+    wrap.appendChild(item);
+  });
+
+  return wrap;
+}
+
+function getSwapAlts(slot, currentName) {
+  const now = new Date();
+  const hrs = now.getHours() + now.getMinutes() / 60;
+  const INCLUDE = new Set(['Entrées', 'Salads', 'Sides', 'Drinks', 'Coffee']);
+  if (hrs < 10.5) INCLUDE.add('Breakfast');
+
+  const items = activeR ? activeR.items : BUILT_IN_CFA;
+
+  // Prefer the item's actual category; fall back to slot mapping
+  const found = items.find(i => i.name === currentName);
+  const cats = found ? [found.category] : SLOT_CATS[slot];
+
+  return items
+    .filter(i => cats.includes(i.category) && INCLUDE.has(i.category) && i.name !== currentName && i.calories > 0)
+    .sort((a, b) => ((b.protein_g + b.fiber_g) / b.calories) - ((a.protein_g + a.fiber_g) / a.calories))
+    .slice(0, 8);
+}
+
+init();
+})();
+</script>
+</body>
+</html>
